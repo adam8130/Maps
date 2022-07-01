@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo, memo } from 'react'
-import { GoogleMap, InfoWindow, Marker, MarkerClusterer } from '@react-google-maps/api'
+import { GoogleMap, InfoWindow, Marker, MarkerClusterer, useLoadScript } from '@react-google-maps/api'
 import { Button, Paper, paper, styled, Typography, useMediaQuery } from '@mui/material'
 import MarkInfo from '../share/MarkInfo'
 
@@ -8,13 +8,17 @@ import MarkInfo from '../share/MarkInfo'
 const Map = memo(({center, setBounds, places, setSelected}) => {
 
   console.log('mapStart');
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: process.env.REACT_APP_API_KEY
+  })
+
   const [event, setEvent] = useState(null)
   const [markers, setMarkers] = useState([])
   const [item, setItem] = useState(null)
 
+  const onTilesLoaded = () => setBounds(event.getBounds())
   const onLoad = useCallback((e) => setEvent(e), [])
   const onUnmount = useCallback(() => setEvent(null), [])
-  const onTilesLoaded = () => setBounds(event.getBounds())
   const onMapClick = useCallback((e) => setMarkers((prev) => 
     [...prev, {
       lat: e.latLng.lat(), lng: e.latLng.lng(),
@@ -27,10 +31,12 @@ const Map = memo(({center, setBounds, places, setSelected}) => {
     places.filter((item)=> item.address)
   ),[places])
 
-  return ( 
+  return (
+    <>
+    {isLoaded &&  
     <GoogleMap center={center} zoom={15}
       mapContainerStyle={{ width: '100%', height: '80vh' }}
-      // onTilesLoaded={onTilesLoaded}
+      onTilesLoaded={onTilesLoaded}
       onLoad={onLoad} 
       onUnmount={onUnmount}
       onClick={onMapClick}
@@ -61,7 +67,9 @@ const Map = memo(({center, setBounds, places, setSelected}) => {
       />
       )}
 
-    </GoogleMap>    
+    </GoogleMap>
+    }
+    </>    
   )
 })
 

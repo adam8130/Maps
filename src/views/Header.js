@@ -1,17 +1,15 @@
 import React, { useState, memo, useCallback } from 'react'
-import { AppBar, Toolbar, Typography, InputBase, IconButton, Box, styled,  alpha, useMediaQuery, Button, FormControlLabel, Switch, Grid } from '@mui/material'
+import { AppBar, Toolbar, Typography, InputBase, IconButton, Box, styled,  alpha, Button, Switch, Grid } from '@mui/material'
 import { Search, Menu, EditRoad, Favorite, NearMe, LightMode, DarkMode, CheckBoxOutlineBlank } from '@mui/icons-material'
 import { Autocomplete } from '@react-google-maps/api'
 
 
 
-const Header = memo(({setSideBarMenu, mode, setMode}) => {
+const Header = memo(({setSideBarMenu, mode, setMode, isMobile}) => {
   
   // console.log('headerStart');
   const [isDark, setIsDark] = useState(false)
-  
-  const isMobile = useMediaQuery('(max-width:600px')
-  console.log(isMobile);
+
   const subMenu = [
     {title: 'Type', icon: <EditRoad/>, fun: ()=>setSideBarMenu(true)},
     {title: 'MyMap', icon: <Favorite/>, fun: null},

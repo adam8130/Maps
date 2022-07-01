@@ -1,7 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { CssBaseline } from "@mui/material";
-import vConsole from './vConsole'
 import App from './App'
 
 

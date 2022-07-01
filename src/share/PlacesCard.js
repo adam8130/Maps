@@ -16,7 +16,6 @@ const PlacesCard = memo(({places, selected}) => {
 
   useEffect(()=>{
     const refs = Array(filteredPlaces.length).fill().map((_, i)=>createRef())
-    console.log({refs});
     setRefArr(refs)
   },[filteredPlaces])
   
