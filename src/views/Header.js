@@ -11,6 +11,7 @@ const Header = memo(({setSideBarMenu, mode, setMode}) => {
   const [isDark, setIsDark] = useState(false)
   
   const isMobile = useMediaQuery('(max-width:600px')
+  console.log(isMobile);
   const subMenu = [
     {title: 'Type', icon: <EditRoad/>, fun: ()=>setSideBarMenu(true)},
     {title: 'MyMap', icon: <Favorite/>, fun: null},
