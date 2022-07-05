@@ -1,33 +1,42 @@
 import React, { useEffect, useState, useMemo, memo } from 'react'
-import { ThemeProvider, createTheme, Grid, useMediaQuery, useTheme } from '@mui/material'
-import { useLoadScript } from '@react-google-maps/api'
+import { ThemeProvider, createTheme, Grid, useMediaQuery, 
+  useTheme } from '@mui/material'
+import { connect } from 'react-redux'
+import{ useLoadScript } from '@react-google-maps/api'
 import Header from './views/Header'
-import SideBar from './views/SideBar'
+import FootBar from './views/FootBar'
 import Map from './views/Map'
+import PlacesCard from './share/PlacesCard'
 import { darkTheme, lightTheme } from './theme/Theme'
-import tpcTw from './fetch/Taipei_tw.json'  // use for design layout before deploy
-import ntpcTw from './fetch/Banqiao_tw.json'  // use for design layout before deploy
+// import tpcTw from './fetch/Taipei_tw.json'  // use for design layout before deploy
 // import { getPlaceData } from './api/ListV1'  // use for fetch real data
-// import { zhTW } from '@mui/material/locale'
+import ntpcTw from './fetch/Banqiao_tw.json'  // use for design layout before deploy
 import Vconsole from 'vconsole'
 
 
+const libraries = ['places']
 
 const App = memo(() => {
   
-  // console.log('appStart');
+  console.log('appStart');
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: process.env.REACT_APP_API_KEY,
+    libraries
+  })
+  
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
-
+  
   const [mode, setMode] = useState('light')
   const [places, setPlaces] = useState([])  // places mapping on the map
   const [center, setCenter] = useState({})  // initCenter for the map
   const [bounds, setBounds] = useState({})  // scope in the current map
   const [selected, setSelected] = useState(null)  // selected point's index
-  const [sideBarMenu, setSideBarMenu] = useState(false)
+  const [detail, setDetail] = useState(null)
+  const [isClear, setIsClear] = useState(false)
   
   const designedTheme = useMemo(() => (
-    mode==='dark'? createTheme(darkTheme) : createTheme(lightTheme)
+    mode === 'dark'? createTheme(darkTheme) : createTheme(lightTheme)
   ), [mode])
 
   useEffect(()=>{
@@ -46,32 +55,39 @@ const App = memo(() => {
     //     console.log(data);
     //     setPlaces(data)
     // })
-    let db = tpcTw.data.concat(ntpcTw.data)
+    // let db = tpcTw.data.concat(ntpcTw.data)
     // console.log(db);
     setPlaces(ntpcTw.data)
   },[bounds])
-
+  
   return (
     <ThemeProvider theme={designedTheme}>
-      <Header setSideBarMenu={setSideBarMenu} mode={mode} setMode={setMode}
-        isMobile={isMobile}
+    {isLoaded &&
+    <Header mode={mode} setMode={setMode} isMobile={isMobile}
+      setIsClear={setIsClear} isClear={isClear}
+    />
+    }
+    <Grid sx={{position:'relative'}}>
+      {isLoaded &&
+      <Map setBounds={setBounds} center={center} places={places}
+        setSelected={setSelected} mode={mode} isClear={isClear}
       />
-
-      <Grid container bgcolor={'background.paper'}>
-        <Grid item xs={12} md={4}>
-          <SideBar places={places} selected={selected} 
-            isTrigger={sideBarMenu} setSideBarMenu={setSideBarMenu}
-          />
-        </Grid>
-
-        <Grid item xs={12} md={8} py='10px' px='20px'>
-          <Map setBounds={setBounds} center={center} places={places}
-              setSelected={setSelected}
-          />
-        </Grid>
-      </Grid>
+      }
+      {places.length > 1 && 
+      <FootBar places={places} selected={selected} setDetail={setDetail}/>
+      }
+            
+      {detail && <PlacesCard detail={detail} setDetail={setDetail}/>}
+    </Grid>
     </ThemeProvider>
   )
 })
 
-export default App
+const mapState = () => ({
+
+})
+
+const mapDispatch = () => ({
+  
+})
+export default connect(mapState, mapDispatch)(App)

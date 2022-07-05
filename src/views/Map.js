@@ -1,24 +1,28 @@
-import React, { useState, useCallback, useMemo, memo } from 'react'
-import { GoogleMap, InfoWindow, Marker, MarkerClusterer, useLoadScript } from '@react-google-maps/api'
-import { Button, Paper, paper, styled, Typography, useMediaQuery } from '@mui/material'
+import React, { useState, useCallback, useMemo, memo, useEffect } from 'react'
+import { GoogleMap, InfoWindow, Marker } from '@react-google-maps/api'
+import { Paper, Typography } from '@mui/material'
 import MarkInfo from '../share/MarkInfo'
+import {dark} from '../theme/MapTheme'
 
 
 
-const Map = memo(({center, setBounds, places, setSelected}) => {
+const Map = memo(({center, setBounds, places, setSelected, mode, isClear}) => {
 
   console.log('mapStart');
-  const { isLoaded } = useLoadScript({
-    googleMapsApiKey: process.env.REACT_APP_API_KEY
-  })
 
-  const [event, setEvent] = useState(null)
+
+  const [map, setMap] = useState(null)
   const [markers, setMarkers] = useState([])
   const [item, setItem] = useState(null)
 
-  const onTilesLoaded = () => setBounds(event.getBounds())
-  const onLoad = useCallback((e) => setEvent(e), [])
-  const onUnmount = useCallback(() => setEvent(null), [])
+  const onLoad = useCallback((map) => setMap(map), [])
+  const onTilesLoaded = () => setBounds(map.getBounds())
+
+  const options = useMemo(()=>({
+    styles: mode === 'light'? '': dark,
+    disableDefaultUI: true
+  }),[mode])
+
   const onMapClick = useCallback((e) => setMarkers((prev) => 
     [...prev, {
       lat: e.latLng.lat(), lng: e.latLng.lng(),
@@ -31,27 +35,37 @@ const Map = memo(({center, setBounds, places, setSelected}) => {
     places.filter((item)=> item.address)
   ),[places])
 
+  const markerType = useCallback(() => {
+    
+  },[])
+
   return (
     <>
-    {isLoaded &&  
-    <GoogleMap center={center} zoom={15}
-      mapContainerStyle={{ width: '100%', height: '80vh' }}
+    <GoogleMap 
+      zoom={15}
+      center={center}
+      options={options}
+      mapContainerStyle={{ width: '100%', height: '90vh' }}
       onTilesLoaded={onTilesLoaded}
       onLoad={onLoad} 
-      onUnmount={onUnmount}
       onClick={onMapClick}
     >
 
-      <Marker position={center} icon={userIcon('orange')}/>  
+      <Marker 
+        position={center}
+        icon={userIcon('orange')}
+      />  
 
+      {!isClear &&
+      <>
       {filteredPlaces?.map((item, i) =>  // list from api
-      <InfoWindow key={i}
+      <Marker key={i} 
         position={{lat:Number(item.latitude),lng:Number(item.longitude)}}
       >
         <Paper elevation={6} sx={{cursor: 'pointer'}} onClick={()=>setSelected(i)}>
           <Typography variant='p'>{item.name}</Typography>  
         </Paper>
-      </InfoWindow>
+      </Marker>
       )}
 
       {markers?.map((item, i) =>  // list from user click
@@ -66,9 +80,9 @@ const Map = memo(({center, setBounds, places, setSelected}) => {
         setItem={setItem}
       />
       )}
-
+      </>
+      }
     </GoogleMap>
-    }
     </>    
   )
 })
@@ -82,15 +96,3 @@ const userIcon = (color) => ({
   fillColor: color,
   scale: 1.3,
 })
-// paper: {
-//   padding: '10px', display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100px',
-// },
-// mapContainer: {
-//   height: '85vh', width: '100%',
-// },
-// markerContainer: {
-//   position: 'absolute', transform: 'translate(-50%, -50%)', zIndex: 1, '&:hover': { zIndex: 2 },
-// },
-// pointer: {
-//   cursor: 'pointer',
-// },
