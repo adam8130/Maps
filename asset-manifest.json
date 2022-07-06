@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.js": "/Nearby-Attraction/static/js/main.54c60913.js",
+    "main.js": "/Nearby-Attraction/static/js/main.d8d4f4f3.js",
     "index.html": "/Nearby-Attraction/index.html",
-    "main.54c60913.js.map": "/Nearby-Attraction/static/js/main.54c60913.js.map"
+    "main.d8d4f4f3.js.map": "/Nearby-Attraction/static/js/main.d8d4f4f3.js.map"
   },
   "entrypoints": [
-    "static/js/main.54c60913.js"
+    "static/js/main.d8d4f4f3.js"
   ]
 }
