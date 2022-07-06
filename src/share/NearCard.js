@@ -2,12 +2,22 @@ import React, { memo } from 'react'
 import { Card, CardActionArea, CardContent, CardMedia, Chip, styled, Typography,
   Box, Rating } from '@mui/material'
 import { DirectionsCar, LocationOn, Phone, Star, Close } from '@mui/icons-material'
+import { connect } from 'react-redux'
 
 
 
-const PlacesCard = memo(({detail, setDetail}) => {
+const mapState = ({Global, MapList}) => ({
+  detail: Global.detail,
+  myItem: MapList.myItem
+})
+const mapDispatch = {
+  setDetail: val => ({type: 'setDetail', payload: val})
+}
+
+const NearCard = memo((state) => {
   
-  // console.log('placesCardStart');
+  // console.log('NearCardStart');
+  const { detail, setDetail } = state
   
   return (
     <StyledCard elevation={6}>
@@ -17,11 +27,11 @@ const PlacesCard = memo(({detail, setDetail}) => {
           <Typography variant='h5'>{detail.name}</Typography>
 
           <FlexBox>  {/* rating */}
-            <Rating value={Number(parseFloat(detail.raw_ranking).toFixed(1))} 
+            <Rating 
               readOnly size='small' precision={0.1} sx={{ml:'-3px'}}
+              value={Number(parseFloat(detail.raw_ranking).toFixed(1))} 
               emptyIcon={<Star style={{ opacity: 0.55 }} fontSize="inherit"/>}
             />
-
             <Typography variant='subtitle1'>
               {Number(parseFloat(detail.raw_ranking).toFixed(1))}
             </Typography>
@@ -58,7 +68,6 @@ const PlacesCard = memo(({detail, setDetail}) => {
               {detail.distance_string.replace(/k/,'K')} from you
             </Typography>
           </FlexBox>
-          
             
           <FlexBox mt={1}>  {/* phone */}
             <Phone sx={{ml:'-3px'}}/>
@@ -66,7 +75,6 @@ const PlacesCard = memo(({detail, setDetail}) => {
               {detail.phone}
             </Typography>
           </FlexBox>
-          
           
           <FlexBox sx={{justifyContent:'flex-end',mt:2}}>  {/* website */}
             <Chip label='WebSite' clickable sx={{px:1}} color='primary'
@@ -84,7 +92,7 @@ const PlacesCard = memo(({detail, setDetail}) => {
   )
 })
 
-export default PlacesCard
+export default connect(mapState, mapDispatch)(NearCard)
 
 const StyledCard = styled(Card)(({theme})=>`
   width: 25%;
@@ -102,7 +110,7 @@ const StyledCard = styled(Card)(({theme})=>`
       position: relative;
     }
     ${[theme.breakpoints.down('sm')]}{
-      width: 60%;
+      width: 80%;
     }
 `)
 const FlexBox = styled(Box)`

@@ -1,39 +1,48 @@
-import React, { useEffect, useState, useMemo, memo } from 'react'
-import { ThemeProvider, createTheme, Grid, useMediaQuery, 
-  useTheme } from '@mui/material'
+import React, { useEffect, useMemo, memo } from 'react'
+import { ThemeProvider, createTheme, Grid, useMediaQuery, useTheme } from '@mui/material'
 import { connect } from 'react-redux'
 import{ useLoadScript } from '@react-google-maps/api'
 import Header from './views/Header'
 import FootBar from './views/FootBar'
 import Map from './views/Map'
-import PlacesCard from './share/PlacesCard'
+import NearCard from './share/NearCard'
+import MyItemCard from './share/MyItemCard'
 import { darkTheme, lightTheme } from './theme/Theme'
-// import tpcTw from './fetch/Taipei_tw.json'  // use for design layout before deploy
+import TPC from './fetch/Taipei_tw.json'  // use for design layout before deploy
+import NTPC from './fetch/Banqiao_tw.json'  // use for design layout before deploy
 // import { getPlaceData } from './api/ListV1'  // use for fetch real data
-import ntpcTw from './fetch/Banqiao_tw.json'  // use for design layout before deploy
 import Vconsole from 'vconsole'
+
 
 
 const libraries = ['places']
 
-const App = memo(() => {
+const mapState = ({Global, MapList}) => ({
+  mode: Global.mode,
+  isClear: Global.isClear,
+  bounds: Global.bounds,
+  isMobile: Global.isMobile,
+  nearList: MapList.nearList,
+  detail: Global.detail,
+  listType: MapList.listType
+})
+const mapDispatch = {
+  setCenter: (val) => ({type: 'setCenter', payload: val}),
+  setIsMobile: (val) => ({type: 'setIsMobile', payload: val}),
+  setNearList: val => ({type: 'setNearList', payload: val})
+}
+
+const App = memo((state) => {
   
   console.log('appStart');
+  const { mode, bounds, setCenter, setIsMobile, setNearList, nearList, detail, listType } = state
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_API_KEY,
     libraries
   })
-  
-  const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
-  
-  const [mode, setMode] = useState('light')
-  const [places, setPlaces] = useState([])  // places mapping on the map
-  const [center, setCenter] = useState({})  // initCenter for the map
-  const [bounds, setBounds] = useState({})  // scope in the current map
-  const [selected, setSelected] = useState(null)  // selected point's index
-  const [detail, setDetail] = useState(null)
-  const [isClear, setIsClear] = useState(false)
   
   const designedTheme = useMemo(() => (
     mode === 'dark'? createTheme(darkTheme) : createTheme(lightTheme)
@@ -41,53 +50,36 @@ const App = memo(() => {
 
   useEffect(()=>{
     isMobile && new Vconsole()
-  },[isMobile])
+    setIsMobile(isMobile)
+  },[isMobile, setIsMobile])
 
   useEffect(()=>{
-    navigator.geolocation.getCurrentPosition(({coords: {latitude, longitude}})=>{
+    navigator.geolocation.getCurrentPosition(({coords: {latitude, longitude}}) => 
       setCenter({lat: latitude, lng: longitude})
-    })
-  },[])
+    )
+  },[setCenter])
 
   useEffect(()=>{
     console.log('App/useEffect2/getBounds',bounds)
     // getPlaceData(bounds).then(data=>{
     //     console.log(data);
-    //     setPlaces(data)
+    //     setNearList(data)
     // })
-    // let db = tpcTw.data.concat(ntpcTw.data)
-    // console.log(db);
-    setPlaces(ntpcTw.data)
-  },[bounds])
+    let db = TPC.data.concat(NTPC.data)
+    setNearList(db.filter(item => item.address))
+  },[bounds,setNearList])
   
   return (
     <ThemeProvider theme={designedTheme}>
-    {isLoaded &&
-    <Header mode={mode} setMode={setMode} isMobile={isMobile}
-      setIsClear={setIsClear} isClear={isClear}
-    />
-    }
-    <Grid sx={{position:'relative'}}>
-      {isLoaded &&
-      <Map setBounds={setBounds} center={center} places={places}
-        setSelected={setSelected} mode={mode} isClear={isClear}
-      />
-      }
-      {places.length > 1 && 
-      <FootBar places={places} selected={selected} setDetail={setDetail}/>
-      }
-            
-      {detail && <PlacesCard detail={detail} setDetail={setDetail}/>}
-    </Grid>
+      {isLoaded && <Header/>}
+      <Grid sx={{position:'relative'}}>
+        {isLoaded && <Map/>}
+        {nearList.length > 1 && <FootBar/>}
+        {(listType === 'Near' && detail) && <NearCard/>}
+        {(listType === 'MyMap' && detail) && <MyItemCard/>}
+      </Grid>
     </ThemeProvider>
   )
 })
 
-const mapState = () => ({
-
-})
-
-const mapDispatch = () => ({
-  
-})
 export default connect(mapState, mapDispatch)(App)

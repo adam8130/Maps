@@ -1,49 +1,46 @@
-import React, { useState, memo } from "react"
-import { Box, Button, TextField, Typography } from "@mui/material";
+import React, { memo } from "react"
+import { Box, Button, Typography } from "@mui/material";
 import { InfoWindow } from '@react-google-maps/api'
 import { formatRelative } from 'date-fns'
-import { Delete, Edit } from '@mui/icons-material';
+import { Delete } from '@mui/icons-material';
+import { connect } from "react-redux";
 
 
 
-const MarkInfo = memo(({ item, markers, setMarkers, setItem }) => {
+const mapState = ({MapList}) => ({
+    myItem: MapList.myItem,
+    markerList: MapList.markerList
+})
+const mapDispatch = {
+    setMarkerList: val => ({type: 'setMarkerList', payload: val}),
+    setMyItem: val => ({type: 'setMyItem', payload: val}),
+}
+
+const MarkInfo = memo(({ myItem, markerList, setMarkerList, setMyItem }) => {
 
     // console.log('markInfoStart');
-    const [focus, setFocus] = useState(true)
-
-    const handleEdit = (e, item) => {
-        let newArr = [...markers]
-        newArr.forEach(arrItem=>{
-          if(arrItem.lat===item.lat && arrItem.lng===item.lng)
-            arrItem.name = e.target.value
-        })
-        setMarkers(newArr)
-    }
+    console.log(myItem);
 
     const handleDelete = (item) => {
-        let newArr = markers.filter(arrItem=>(
+        let newArr = markerList.filter(arrItem=>(
             arrItem.lat !== item.lat && arrItem.lng !== item.lng
         ))
-        setMarkers(newArr)
-        setItem(null)
+        setMarkerList(newArr)
+        setMyItem(null)
     }
 
     return(
-        <InfoWindow position={{ lat: item.lat, lng: item.lng }}
-            onCloseClick={()=>setItem(null)}
+        <InfoWindow position={{ lat: myItem.lat, lng: myItem.lng }}
+            onCloseClick={()=>setMyItem(null)}
         >
             <Box>
-                <TextField label='Rename' value={item.name} variant="standard"
-                    onChange={(e)=>handleEdit(e, item)} margin='dense'
-                />
-                <Typography variant='span' sx={{ml:2}} onClick={()=>setFocus(false)}>
-                    <Edit />
-                </Typography>
+                <Typography variant='h6'>{myItem.name}</Typography>
 
-                <p>You {formatRelative(item.time, new Date())}</p>
+                <p>You {formatRelative(myItem.time, new Date())}</p>
 
-                <Button variant="contained" size="small" startIcon={<Delete/>}
-                    onClick={()=>handleDelete(item)}
+                <Button variant="contained" size="small" 
+                    startIcon={<Delete/>}
+                    onClick={()=>handleDelete(myItem)}
                 >
                     Delete
                 </Button>
@@ -52,4 +49,4 @@ const MarkInfo = memo(({ item, markers, setMarkers, setItem }) => {
     )
 })
 
-export default MarkInfo
+export default connect(mapState, mapDispatch)(MarkInfo)
