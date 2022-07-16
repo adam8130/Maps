@@ -1,201 +1,211 @@
-import React, { useState, memo, useMemo, useCallback } from 'react'
-import { AppBar, Typography, InputBase, IconButton, Box, styled,  alpha, Button, Switch, Stack, FormControl, Select, MenuItem } from '@mui/material'
-import { Search, Menu, EditRoad, Favorite, NearMe, LightMode, DarkMode, CheckBoxOutlineBlank, KeyboardArrowUp } from '@mui/icons-material'
-import { Autocomplete } from '@react-google-maps/api'
-import { connect } from 'react-redux'
+import React, { useState, memo, useMemo, useCallback, } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import { actions } from '../store/Reducer'
+import AutoComplete from '../share/Auto2'
+import {
+  AppBar, IconButton, Box, styled, Button,
+  Switch, Stack, FormControl, Select, MenuItem, InputLabel 
+} from '@mui/material'
+import { 
+  EditRoad, Favorite, NearMe, LightMode, DarkMode,
+  CheckBoxOutlineBlank, MoreHoriz, AccountCircle 
+} from '@mui/icons-material'
 
 
-const mapState = ({Global, MapList}) => ({
-  mode: Global.mode,
-  isClear: Global.isClear,
-  isMobile: Global.isMobile,
-  listType: MapList.listType
-})
-const mapDispatch = {
-  setMode: val => ({type: 'setMode', payload: val}),
-  setIsClear: val => ({type: 'setIsClear', payload: val}),
-  setListType: val => ({type: 'setListType', payload: val})
-}
+const { setMode, setIsClear, setListType } = actions
 
-const Header = memo((state) => {
-  
+const Header = memo(() => {
+
   // console.log('headerStart');
-  const { mode, isMobile, setIsClear, isClear, setMode, listType, setListType } = state
-  const [isOpen, setIsOpen] = useState(true)
-  const [isTrigger, setIsTrigger] = useState(false)
-  const [type, setType] = useState('Restaurants')
-  const [rating, setRating] = useState('3.5 up')
-  const [distance, setDistance] = useState('2Km less')
+  const dispatch = useDispatch()
+  const { mode, isMobile, isClear } = useSelector( ({Global}) => Global )
+  const { listType } = useSelector( ({MapList}) => MapList )
 
-  const subMenu = useMemo(()=>[
-    { title: 'Type', icon: <EditRoad/>, fun: ()=>setIsTrigger(!isTrigger) },
-    { title: 'MyMap', icon: <Favorite/>, fun: ()=>setListType('MyMap') },
-    { title: 'Near', icon: <NearMe/>, fun: ()=>setListType('Near') },
-    { title: 'Clear', icon: <CheckBoxOutlineBlank/>, fun: ()=>setIsClear(!isClear )}
-  ],[isClear, setIsClear, isTrigger, setListType])
-  
-  const selectOptions = useMemo(()=>[{
-    label: type,
-    options: [ 'Restaurants', 'Hotel', 'Attraction'],
-    set: setType
-  },{
-    label: rating,
-    options: [ '3.5 up', '4.0 up', '4.5 up', 'All' ],
+  const [isMenuBox, setIsMenuBox] = useState(false)
+  const [isPopupBox, setIsPopupBox] = useState(false)
+  const [rating, setRating] = useState('3.5 Up')
+  const [distance, setDistance] = useState('2Km Less')
+
+  const subMenu = useMemo(() => [
+    { title: 'Type', icon: <EditRoad />, fun: () => setIsPopupBox(!isPopupBox) },
+    { title: 'MyMap', icon: <Favorite />, fun: () => dispatch(setListType('MyMap')) },
+    { title: 'Near', icon: <NearMe />, fun: () => dispatch(setListType('Near')) },
+    { title: 'Clear', icon: <CheckBoxOutlineBlank />, 
+      fun: () => dispatch(setIsClear(!isClear)) }
+  ], [isClear, isPopupBox, dispatch])
+
+  const selectOptions = useMemo(() => [{
+    label: 'Rating',
+    value: rating,
+    options: ['3.5 Up', '4.0 Up', '4.5 Up', 'All'],
     set: setRating
-  },{
-    label: distance,
-    options: [ '2Km less', '5Km less', '10Km less', 'All' ],
+  }, {
+    label: 'Distance',
+    value: distance,
+    options: ['2Km Less', '5Km Less', '10Km Less', 'All'],
     set: setDistance
-  }],[type, rating, distance])
+  }], [rating, distance])
 
   const activeColor = useCallback((item) => ({
-    color: (listType === item.title? 'rgb(30,155,255)': null) ||
-    (isClear && item.title === 'Clear' && 'green')
-  }),[isClear, listType])
+    color: ( listType === item.title ? 'rgb(30,155,255)' : null ) ||
+      (isClear && item.title === 'Clear' && 'green')
+  }), [isClear, listType])
+
+  
 
   return (
-    <>
-    <AppBox>
-      <Stack direction='row'>
-        {!isMobile && <Typography variant="h5">Attractions</Typography>}
-        <Autocomplete>
-          <SearchBox>
-            <Box><Search/></Box>
-            <InputBase placeholder='search...'/>
-          </SearchBox>
-        </Autocomplete>
-      </Stack>
-      <IconButton onClick={()=>setIsOpen(!isOpen)}>
-        <Menu fontSize='large'/>
-      </IconButton>
-    </AppBox>
+    <RootBox>
 
-    {isOpen &&
-    <MenuBox sx={{bgcolor: 'background.secondary', color: 'primary.main'}}>
-      {isMobile? 
-      subMenu.map((item, i)=>
-        (<Button key={i} size='small'startIcon={item.icon} onClick={()=>item.fun()}
-          sx={activeColor(item)}
-        />)
-      ) : 
-      subMenu.map((item, i)=>
-        (<Button key={i} size='small' startIcon={item.icon} onClick={()=>item.fun()}
-          sx={activeColor(item)}
-        >
-          {item.title}
-        </Button>)
-      )}
-      {isMobile? 
-      (<Switch size='small' checked={mode==='dark'? true: false}
-        onChange={()=>setMode(mode==='light'? 'dark': 'light')}
-      />) :
-      (<Button size='small' startIcon={mode==='dark'? <DarkMode/>: <LightMode/>}>
-        <Switch size='small' checked={mode==='dark'? true: false} 
-          onChange={()=>setMode(mode==='light'? 'dark': 'light')}
-        />
-      </Button>)
+      <AppBox>
+        <AutoComplete/>
+
+        <Stack direction='row' gap={1}>
+          <IconButton onClick={() => {}}>
+            <AccountCircle fontSize={isMobile ? 'medium' : 'large'}/>
+          </IconButton>
+          <IconButton onClick={() => setIsMenuBox(!isMenuBox)}>
+            <MoreHoriz fontSize={isMobile ? 'medium' : 'large'}/>
+          </IconButton>
+        </Stack>
+      </AppBox>
+
+      {isMenuBox &&
+        <MenuBox>
+          {isMobile ?
+            subMenu.map((item, i) =>
+            (<Button key={i} size='small' startIcon={item.icon} onClick={() => item.fun()}
+              sx={activeColor(item)}
+            />)
+            ) :
+            subMenu.map((item, i) =>
+            (<Button key={i} size='small' startIcon={item.icon} onClick={() => item.fun()}
+              sx={activeColor(item)}
+            >
+              {item.title}
+            </Button>)
+            )}
+          {isMobile ?
+            (<Switch size='small' checked={mode === 'dark' ? true : false}
+              onChange={() => dispatch(setMode(mode === 'light' ? 'dark' : 'light'))}
+            />) :
+            (<Button size='small' startIcon={mode === 'dark' ? <DarkMode /> : <LightMode />}>
+              <Switch size='small' checked={mode === 'dark' ? true : false}
+                onChange={() => dispatch(setMode(mode === 'light' ? 'dark' : 'light'))}
+              />
+            </Button>)
+          }
+        </MenuBox>
       }
-    </MenuBox>
-    }
 
-    {isTrigger &&
-    <PopupBox sx={{bgcolor: 'background.third',  }}>
-      {selectOptions.map((item, i)=>
-      <FormControl size='small' key={i}>
-        <Select value={item.label} onChange={(e)=>item.set(e.target.value)}
-          variant='standard' sx={{color: 'text.secondary'}}
-        >
-          {item.options.map((item,i)=>
-          <MenuItem key={i} value={item} sx={{fontSize:'14px'}}>
-            {item}
-          </MenuItem>
+      {(isPopupBox && isMenuBox) &&
+        <PopupBox>
+          {selectOptions.map((item, i) =>
+            <FormControl size='small' key={i}>
+              <InputLabel id='label'>{item.label}</InputLabel>
+              <Select
+                value={item.value}
+                id='select'
+                labelId='label'
+                label={item.label}
+                sx={{ color: 'text.secondary' }}
+                onChange={(e) => item.set(e.target.value)}
+              >
+                {item.options.map((item, i) =>
+                  <MenuItem key={i} value={item} sx={{ fontSize: '14px' }}>
+                    {item}
+                  </MenuItem>
+                )}
+              </Select>
+            </FormControl>
           )}
-        </Select>
-      </FormControl>  
-      )}
-      <Button size='small' variant="contained" onClick={()=>{}}>
-        Go
-      </Button>
-      <Button size='small' variant="contained" onClick={()=>setIsTrigger(false)}>
-          <KeyboardArrowUp/>
-      </Button>
-    </PopupBox>
-    }
-    </>
+          <Button size='small' variant="contained" onClick={() => dispatch(setIsPopupBox(false))}>
+            Apply
+          </Button>
+        </PopupBox>
+      }
+    </RootBox>
   )
 })
 
-export default connect(mapState, mapDispatch)(Header)
+export default Header
 
+const RootBox = styled(Box)`
+  position: fixed;
+  z-index: 2;
+`
 const AppBox = styled(AppBar)(({ theme }) => ({
-  padding: '10px 20px',
-  display: 'flex',
+  padding: '10px',
+  width: '25%',
+  flexDirection: 'row',
   alignItems: 'center',
   justifyContent: 'space-between',
-  flexDirection: 'row',
-  position: 'relative',
-  [theme.breakpoints.down('md')]:{
-    width: '100%',
-    borderRadius: '10px',
-    position: 'fixed',
+  gap: '10px',
+  marginTop: '10px',
+  position: 'fixed',
+  left: '1%',
+  borderRadius: '10px',
+  background: [theme.palette.background.main],
+  [theme.breakpoints.down('sm')]: {
+    width: '90%',
+    margin: '10px auto 0 auto',
   },
-    '.MuiButtonBase-root':{
-      padding: 0,
+  '.MuiIconButton-root': {
+    padding: 0,
+    '.MuiSvgIcon-root': {
+      color: [theme.palette.text.primary]
+    },
+    '&:nth-of-type(2)':{
+      transform: 'rotate(90deg)'
     }
+  },
 }))
-const MenuBox = styled(Box)(({theme})=>`
-  width: 60%;
+const MenuBox = styled(Box)(({ theme }) => `
+  width: 40%;
   height: 50px;
-  margin: auto;
   padding: 0 40px;
+  margin: auto;
   display: flex;
   justify-content: space-evenly;
   align-items: center;
-  background: rgb(220,220,220);
+  background: ${theme.palette.background.secondary};
+  color: ${theme.palette.primary.main};
   border-radius: 0 0 30px 30px;
-  position: absolute;
-  z-index: 2;
+  position: fixed;
   left: 0;
   right: 0;
   ${[theme.breakpoints.down('md')]}{
-    width: 95%;
+    width: 90%;
     padding: 0;
-    border-radius: 5px;
-    margin-top: 15px;
+    border-radius: 10px;
+    margin-top: 70px;
   }
 `)
-const PopupBox = styled(Box)(({theme})=>`
-  width: 40%;
-  padding: 5px;
+const PopupBox = styled(Box)(({ theme }) => `
+  width: 30%;
+  padding: 10px 5px 5px 5px;
   margin: auto;
   display: flex;
-  background: rgb(240,240,240);
   border: 1px solid rgb(70,90,100);
+  background: ${theme.palette.background.third};
   justify-content: space-evenly;
   align-items: center;
-  position: absolute;
+  position: fixed;
   border-radius: 10px;
   left: 0;
   right: 0;
-  top: 16%;
-  z-index: 2;
+  margin-top: 55px;
   ${[theme.breakpoints.down('md')]}{
-    padding: 5px 0;
+    padding: 10px 0 5px 0;
     width: 90%;
+    margin-top: 125px;
     border-radius: 5px;
-    margin-top: 15px;
   }
     .MuiButton-root{
-      max-width: 30px;
       max-Height: 25px;
-      min-width: 0
     }
     .MuiSelect-select{
       font-weight: 700;
       font-size: 14px;
-        ${[theme.breakpoints.down('sm')]}{
-          max-width: 40px;
-        }
     }
     .MuiInput-root{
       &::before{
@@ -212,47 +222,3 @@ const PopupBox = styled(Box)(({theme})=>`
       }
     }
 `)
-const SearchBox = styled(Box)(({ theme }) => ({
-  width: '100%',
-  marginLeft: 0,
-  position: 'relative',
-  borderRadius: '5px',
-  transition: 'all 0.3s',
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
-    '&:hover': {
-      backgroundColor: alpha(theme.palette.common.white, 0.25),
-    },
-  [theme.breakpoints.up('sm')]: {
-      marginLeft: theme.spacing(3),
-      marginRight: theme.spacing(3),
-      width: 'auto'
-  },
-  [theme.breakpoints.down('sm')]: {
-    justifyContent: 'center',
-    width: 'auto'
-  },
-    '.MuiInputBase-root':{
-      color: 'inherit',
-    },
-    '& .MuiInputBase-input': {
-      padding: theme.spacing(1, 1, 1, 0),
-      paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-      transition: theme.transitions.create('width'),
-      width: '100%',
-      [theme.breakpoints.up('sm')]: {
-          width: '12ch',
-          '&:focus': {
-            width: '25ch',
-          }
-      }
-    },
-    '.MuiBox-root':{
-      padding: theme.spacing(2),
-      height: '100%',
-      position: 'absolute',
-      pointerEvents: 'none',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    }
-}))

@@ -96,21 +96,26 @@ export default connect(mapState, mapDispatch)(NearCard)
 
 const StyledCard = styled(Card)(({theme})=>`
   width: 25%;
+  height: 100%;
   display: flex;
   justify-content: center;
   position: absolute;
-  top: 0;
+  top: 8vh;
   z-index: 3;
   background: ${theme.palette.background.default};
     .MuiCardMedia-root{
       width: 100%;
-      height: 200px;
+      height: 35%;
     }
     .MuiCardActionArea-root{
       position: relative;
     }
+    .MuiCardContent-root{
+      height: 65%;
+    }
     ${[theme.breakpoints.down('sm')]}{
-      width: 80%;
+      width: 100%;
+      height: 100%;
     }
 `)
 const FlexBox = styled(Box)`

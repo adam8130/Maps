@@ -1,11 +1,15 @@
-import { combineReducers, createStore } from 'redux'
+import { configureStore } from '@reduxjs/toolkit'
 import { Global, MapList } from './Reducer'
 
 
-
-const reducer = combineReducers({
-    Global,
-    MapList
+export default configureStore({
+    reducer: {
+        Global: Global.reducer,
+        MapList: MapList.reducer
+    },
+    middleware: getDefaultMiddleware => (
+        getDefaultMiddleware({
+            serializableCheck: false,
+        })
+    )
 })
-
-export const store = createStore(reducer)

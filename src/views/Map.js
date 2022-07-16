@@ -1,36 +1,32 @@
-import React, { useState, useCallback, useMemo, memo } from 'react'
-import { GoogleMap, Marker } from '@react-google-maps/api'
-import { Box, Paper, styled, Typography } from '@mui/material'
+import React, { useCallback, useMemo, memo, useState, useEffect } from 'react'
+import { Circle, GoogleMap, Marker } from '@react-google-maps/api'
+import { dark } from '../theme/MapTheme'
+import { useDispatch, useSelector } from 'react-redux'
 import MarkInfo from '../share/MarkInfo'
-import {dark} from '../theme/MapTheme'
-import { connect } from 'react-redux'
+import { Box, Fab, Paper, Stack, styled, Typography } from '@mui/material'
+import { Add, Navigation, Remove, List } from '@mui/icons-material'
+import { actions } from '../store/Reducer'
 
 
+const { setMap, setBounds, setMarkerlist, setMyItem, setSelected, setFootbar } = actions
 
-const mapState = ({Global, MapList}) => ({
-  mode: Global.mode,
-  isClear: Global.isClear,
-  center: Global.center,
-  nearList: MapList.nearList,
-  markerList: MapList.markerList,
-  listType: MapList.listType,
-  myItem: MapList.myItem
-})
-const mapDispatch = {
-  setBounds: val => ({type: 'setBounds', payload: val}),
-  setSelected: val => ({type: 'setSelected', payload: val}),
-  setMarkerList: val => ({type: 'setMarkerList', payload: val}),
-  setMyItem: val => ({type: 'setMyItem', payload: val}),
-}
-
-const Map = memo((state) => {
+const Map = memo(() => {
 
   console.log('mapStart');
-  const {center, setBounds, nearList, setSelected, mode, isClear, markerList, setMarkerList, listType, myItem, setMyItem } = state
+  const { mode, map, isClear, footbar } = useSelector(({Global}) => Global)
+  const { nearlist, markerlist, listType, myItem } = useSelector(({MapList})=> MapList)
+  const [center, setCenter] = useState(null)
+  const dispatch = useDispatch()
 
-  const [map, setMap] = useState(null)
-  const onLoad = useCallback((map) => setMap(map), [])
-  const onTilesLoaded = () => setBounds(map.getBounds())
+
+  useEffect(()=>{
+    navigator.geolocation.getCurrentPosition(({coords: {latitude, longitude}}) => 
+      setCenter({lat: latitude, lng: longitude})
+    )
+  },[])
+
+  const onLoad = useCallback( map => dispatch(setMap(map)), [dispatch])
+  const onTilesLoaded = () => dispatch(setBounds(map.getBounds()))
 
   const options = useMemo(()=>({
     styles: mode === 'light'? '': dark,
@@ -50,16 +46,16 @@ const Map = memo((state) => {
       phone: '--',
       time: new Date(),
     }
-    let newArr = [...markerList, newItem]
-    setMarkerList(newArr)
+    let newArr = [...markerlist, newItem]
+    dispatch(setMarkerlist(newArr))
   }
 
   const mapType = useCallback(() => (
-    listType === 'Near' ? nearList : markerList
-  ),[listType, nearList, markerList])
+    listType === 'Near' ? nearlist : markerlist
+  ),[listType, nearlist, markerlist])
 
   return (
-    <MainBox>
+    <RootBox>
     <GoogleMap 
       zoom={15}
       center={center}
@@ -72,12 +68,32 @@ const Map = memo((state) => {
 
       <Marker position={center} icon={userIcon('orange')}/>  {/* user position */}
 
+      {nearlist?.length > 0 && 
+      <div className='float'>
+        <Fab onClick={()=>dispatch(setFootbar(!footbar))}>
+          <List/>
+        </Fab>
+      </div>
+      }
+      
+      <Stack diretcion='column' className='MuiStack-root'>  {/* ui buttons */}
+        <Fab onClick={()=>map.setZoom(map.getZoom()+1)}>
+          <Add/>
+        </Fab>
+        <Fab onClick={()=>map.setZoom(map.getZoom()-1)}>
+          <Remove/>
+        </Fab>
+        <Fab onClick={()=>{map.panTo(center); map.setZoom(15)}}>
+          <Navigation />
+        </Fab>
+      </Stack>
+
       {!isClear &&
       <>
       {mapType().map((item, i) =>  // list from api
       <Marker key={i} 
         position={{lat:Number(item.latitude),lng:Number(item.longitude)}}
-        onClick={()=>setSelected(i)}
+        onClick={()=>dispatch(setSelected(i))}
       >
         <Paper elevation={6} sx={{cursor: 'pointer'}} >
           <Typography variant='p'>{item.name}</Typography>  
@@ -85,10 +101,10 @@ const Map = memo((state) => {
       </Marker>
       )}
 
-      {listType === 'MyMap' && markerList.map((item, i) =>  // list from user click
+      {listType === 'MyMap' && markerlist.map((item, i) =>  // list from user click
       <Marker key={i}
         position={{ lat: item.lat, lng: item.lng }}
-        onClick={()=>setMyItem(item)}
+        onClick={()=>dispatch(setMyItem(item))}
       />
       )}
 
@@ -96,17 +112,38 @@ const Map = memo((state) => {
       </>
       }
     </GoogleMap>
-    </MainBox> 
+    </RootBox> 
   )
 })
 
-export default connect(mapState, mapDispatch)(Map)
+export default Map
 
-const MainBox = styled(Box)(({theme})=>`
+const RootBox = styled(Box)(({theme})=>`
   width: 100%;
-  height: 90vh;
+  height: 100vh;
     ${[theme.breakpoints.down('md')]}{
-      height: 80vh;
+      height: 89vh;
+    }
+    .MuiStack-root{
+      position: fixed;
+      bottom: 15%;
+      right: 2%;
+      gap: 20px;
+    }
+    .MuiFab-root{
+      width: 40px;
+      height: 40px;
+      background: ${theme.palette.background.third};
+      color: ${theme.palette.text.secondary};
+      &:nth-of-type(3){
+          color: rgb(30,155,255);
+          transform: rotate(40deg);
+        }
+    }
+    .float{
+      position: fixed;
+      bottom: 40%;
+      right: 2%;
     }
 `)
 const userIcon = (color) => ({

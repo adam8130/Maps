@@ -1,70 +1,52 @@
-// const initState = {
-//     themeMode: 'light',
-//     center: {},  // initCenter for the map
-//     bounds: {},  // scope in the current map
-//     nearList: [],  // places mapping on the map
-//     detail: null,  // selected point's index    
-//     userList: [],
-//     selected: null,
-//     isClear: false,
-// }
+import { createSlice } from "@reduxjs/toolkit"
 
-const Global = (prev={
-    mode: 'light',
-    bounds: {},
-    selected: null,
-}, act) => {
-    let next = {...prev}
-    switch(act.type){
-        case 'setMode':
-            next.mode = act.payload
-            return next
-        case 'setBounds':
-            next.bounds = act.payload
-            return next
-        case 'setIsClear':
-            next.isClear = act.payload
-            return next
-        case 'setCenter':
-            next.center = act.payload
-            return next
-        case 'setIsMobile':
-            next.isMobile = act.payload
-            return next
-        case 'setSelected':
-            next.selected = act.payload
-            return next
-        case 'setDetail':
-            next.detail = act.payload
-            return next
-        default:
-            return prev
+
+const Global = createSlice({
+    name: 'Global',
+    initialState: {
+        mode: 'light',
+        map: null,
+        bounds: null,
+        isMobile: false,
+        isClear: false,
+        footbar: false,
+    },
+    reducers: {
+        setMode: (state, act) => { state.mode = act.payload },
+        setMap: (state, act) => { state.map = act.payload },
+        setBounds: (state, act) => { state.bounds = act.payload },
+        setIsMobile: (state, act) => { state.isMobile = act.payload },
+        setIsClear: (state, act) => { state.isClear = act.payload },
+        setFootbar: (state, act) => { state.footbar = act.payload },
+        setDetail: (state, act) => { state.detail = act.payload },
     }
-}
+})
 
-const MapList = (prev = {
-    nearList: [],
-    markerList: [],
-    myItem: null,
-    listType: 'Near',
-}, act) => {
-    let next = {...prev}
-    switch(act.type){
-        case 'setNearList':
-            next.nearList = act.payload
-            return next
-        case 'setMarkerList':
-            next.markerList = act.payload
-            return next
-        case 'setListType':
-            next.listType = act.payload
-            return next
-        case 'setMyItem':
-            next.myItem = act.payload
-            return next
-        default:
-            return prev
+const MapList = createSlice({
+    name: 'Maplist',
+    initialState: {
+        
+        nearlist: [],
+        markerlist: [],
+        listType: 'Near',
+        myItem: null,
+        searchDot: null,
+        searchList: null,
+        selected: null,
+        
+    },
+    reducers: {
+        
+        setNearlist: (state, act) => { state.nearlist = act.payload },
+        setMarkerlist: (state, act) => { state.markerlist = act.payload },
+        setListType: (state, act) => { state.listType = act.payload },
+        setMyItem: (state, act) => { state.myItem = act.payload },
+        setSearchDot: (state, act) => { state.searchDot = act.payload },
+        setSearchList: (state, act) => { state.searchList = act.payload },
+        setSelected: (state, act) => { state.selected = act.payload },
+        
     }
-}
+})
 
-export {Global, MapList}
+export const actions = {...Global.actions,...MapList.actions}
+export { Global, MapList }

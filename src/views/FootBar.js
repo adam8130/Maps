@@ -1,105 +1,127 @@
 import React, { useState, memo, createRef, useEffect, useCallback } from 'react'
-import { Box, Card, CardMedia, styled, Typography } from '@mui/material'
-import { connect } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
+import { actions } from '../store/Reducer'
+import { Box, Card, CardContent, CardMedia, Rating, styled } from '@mui/material'
+import { Star } from '@mui/icons-material'
 
 
+const { setDetail } = actions
 
-const mapState = ({Global, MapList}) => ({
-  isClear: Global.isClear,
-  selected: Global.selected,
-  detail: Global.detail,
-  nearList: MapList.nearList,
-  markerList: MapList.markerList,
-  listType: MapList.listType,
-})
-const mapDispatch = {
-  setDetail: val => ({type: 'setDetail', payload: val})
-}
+const FootBar = memo(() => {
 
-const FootBar = memo((state) => {
-  
-  // console.log('sidebarStart');
-  const {nearList, selected, setDetail, isClear, listType, markerList} = state
-  const [refArr,setRefArr] = useState([])
+  const { nearlist, selected, isClear, listType, markerlist } = useSelector(({ MapList }) => MapList)
+
+  console.log(nearlist)
+  const [refArr, setRefArr] = useState([])
   const [prevSpot, setPrevSpot] = useState(null)
-  
-  const spotting = useCallback(() => {
-    console.log(selected);
-    refArr[selected]?.current?.scrollIntoView({behavior:'smooth', inline:'start'})
-    refArr[selected].current.style.transform = 'translateY(-30px) scale(1.1)'
-    if(prevSpot)
-    refArr[prevSpot].current.style.transform = 'translateY(0) scale(1.0)'
-    setPrevSpot(selected)
-  },[selected, refArr])
 
-  useEffect(()=>{
-    const refs = Array(nearList.length).fill().map((_, i)=>createRef())
+  useEffect(() => {
+    const refs = Array(nearlist.length).fill().map((_, i) => createRef())
     setRefArr(refs)
-  },[nearList])
+  }, [nearlist])
 
-  useEffect(()=>{
-    selected && spotting()
-  },[selected, spotting])
-
+  useEffect(() => {
+    console.log(selected);
+    if(selected){
+      refArr[selected].current.scrollIntoView({ behavior: 'smooth', inline: 'start' })
+      refArr[selected].current.style.transform = 'translateY(-20px) scale(1.1)'
+      setPrevSpot(selected)
+      if(prevSpot)
+      refArr[prevSpot].current.style.transform = 'translateY(0) scale(1.0)'
+    }
+  }, [selected, refArr])
+  
   const mapType = useCallback(() => (
-    listType === 'Near' ? nearList : markerList
-  ),[listType, markerList, nearList])
+    listType === 'Near' ? nearlist : markerlist
+  ), [listType, markerlist, nearlist])
 
   return (
     <RootBox>
-      {!isClear && 
-      <FlexBox>
-        {mapType().map((item, i)=>
-        <Card elevation={6} key={i} ref={refArr[i]} onClick={()=>setDetail(item)}>
-          <CardMedia image={item.photo?.images?.large.url || item.photo}/>
-          <Typography variant='p' component='div'>{item.name}</Typography>
+      {!isClear && mapType().map( (item, i) =>
+        <Card elevation={6} key={i} ref={refArr[i]} onClick={() => setDetail(item)}>
+          <CardMedia image={(item.photos && item.photos[0].getUrl()) || ''}/>
+          <CardContent>
+          <h4 className='name'>{item.name}</h4>
+            <Box>
+              <Rating   
+                readOnly size='small' precision={0.1}
+                value={parseFloat(Number(item.rating).toFixed(1))} 
+                emptyIcon={<Star style={{ opacity: 0.55 }} fontSize="inherit"/>}
+              />
+              <p className='distance'>{Number(item.distance).toFixed(1)} 公里</p>
+            </Box>
+            
+            <p className='address'>{item.formatted_address}</p>
+          </CardContent>
         </Card>
-        )}
-      </FlexBox>
+        )
       }
     </RootBox>
   )
 })
 
-export default connect(mapState, mapDispatch)(FootBar)
+export default FootBar
 
 
-const RootBox = styled(Box)(({theme})=>({
-  position: 'absolute',
-  width: '95vw',
-  bottom: '0',
-  padding: '10px',
-  zIndex: '2',
-  [theme.breakpoints.down('md')]:{
-    width: '100%',
-    padding: '16px',
-  }
-}))
-const FlexBox = styled(Box)(({theme})=>`
-  width: 100%;
-  padding-top: 30px;
+const RootBox = styled(Box)(({ theme }) => `
+  width: 90%;
+  padding: 10px;
+  margin: auto;
   display: -webkit-box;
   overflow-x: scroll;
+  position: absolute;
+  bottom: 0;
+  left: 2%;
+  z-index: 2;
+  transition: all 0.5s;
+  ${theme.breakpoints.down('md')}{
+    width: 100%;
     &::-webkit-scrollbar{
       display: none;
     }
+  }
     .MuiCard-root{
-      width: 7%;
-      margin: 0 5px;
-      transition: all 0.5s;
+      width: 15%;
+      margin: 0 10px;
       ${[theme.breakpoints.down('sm')]}{
-        width: 25%;
+        width: 70%;
+        margin: 0 5px;
       }
-    }
-    .MuiCardMedia-root{
-      width: 100%;
-      height: 70px;
-    }
-    .MuiTypography-root{
-      padding: 5px;
-      overflow : hidden;
-      white-space : nowrap;
-      text-align: center;
-      text-overflow: ellipsis;
+        .MuiCardMedia-root{
+          width: 100%;
+          height: 100px;
+        }
+        .MuiCardContent-root{
+          padding: 5px 0;
+            .name{
+              /* padding: 5px; */
+              width: 70%;
+              margin: 0 auto;
+              overflow: hidden;
+              text-align: center;
+              white-space: nowrap;
+              text-overflow : ellipsis;
+            }
+            .address{
+              font-size: 13px;
+              padding: 0 10px;
+              margin: 0;
+              text-overflow: ellipsis;
+              overflow: hidden;
+              display: -webkit-box;
+              -webkit-line-clamp: 2;
+              -webkit-box-orient: vertical;
+            }
+            .MuiBox-root{
+              display: flex;
+              justify-content: space-between;
+              padding: 0 10px;
+                p{
+                  margin: 0;
+                  padding: 0;
+                  font-size: 14px;
+                }
+            }
+        }
     }
 `)

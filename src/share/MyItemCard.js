@@ -1,6 +1,6 @@
 import React, { createRef, memo, useEffect, useState } from 'react'
-import { Card, CardActionArea, CardContent, CardMedia, Chip, styled, Typography,
-  Box, Rating, TextField, Input } from '@mui/material'
+import { Card, CardContent, CardMedia, Chip, styled, Typography,
+  Box, Rating, Input } from '@mui/material'
 import { DirectionsCar, LocationOn, Phone, Star, Close, Edit } from '@mui/icons-material'
 import { connect } from 'react-redux'
 

@@ -5,13 +5,16 @@ export const darkTheme = {
         main: 'rgb(70,70,70)'
       },
       background: {
-        secondary: 'rgb(170,170,170)',
-        third: 'rgb(140,140,140)'
+        main: 'rgb(70,70,70)',
+        secondary: 'rgb(160,160,160)',
+        third: 'rgb(100,100,100)'
       },
       text: {
         primary: 'rgb(220,220,220)',
-        secondary: 'rgb(220,220,220)'
-      }
+        secondary: 'rgb(220,220,220)',
+        third: 'rgb(70,70,70)',
+      },
+      
     }
 }
 export const lightTheme = {
@@ -21,12 +24,14 @@ export const lightTheme = {
         main: 'rgb(70,90,100)'
       },
       background: {
+        main: 'rgb(70,90,100)',
         secondary: 'rgb(220,220,220)',
-        third: 'rgb(240,240,240)'
+        third: 'rgb(240,240,240)',
       },
       text: {
         primary: 'rgb(40,40,40)',
-        secondary: 'rgb(70,90,100)'
+        secondary: 'rgb(70,90,100)',
+        third: 'rgb(224,176,0)',
       }
     }
 }

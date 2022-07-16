@@ -4,4 +4,5 @@
     text-overflow: ellipsis;
     flex-shrink: 0;
     transform: translateY(10px) scale(1.1);
+    white-space: nowrap;
 }
