@@ -1,10 +1,17 @@
 {
   "files": {
-    "main.js": "/Nearby-Attraction/static/js/main.840228c9.js",
+    "main.css": "/Nearby-Attraction/static/css/main.5832c340.css",
+    "main.js": "/Nearby-Attraction/static/js/main.60f2d8bb.js",
+    "static/media/slick.svg": "/Nearby-Attraction/static/media/slick.2630a3e3eab21c607e21.svg",
+    "static/media/slick.eot": "/Nearby-Attraction/static/media/slick.a4e97f5a2a64f0ab1323.eot",
+    "static/media/slick.ttf": "/Nearby-Attraction/static/media/slick.c94f7671dcc99dce43e2.ttf",
+    "static/media/slick.woff": "/Nearby-Attraction/static/media/slick.295183786cd8a1389865.woff",
     "index.html": "/Nearby-Attraction/index.html",
-    "main.840228c9.js.map": "/Nearby-Attraction/static/js/main.840228c9.js.map"
+    "main.5832c340.css.map": "/Nearby-Attraction/static/css/main.5832c340.css.map",
+    "main.60f2d8bb.js.map": "/Nearby-Attraction/static/js/main.60f2d8bb.js.map"
   },
   "entrypoints": [
-    "static/js/main.840228c9.js"
+    "static/css/main.5832c340.css",
+    "static/js/main.60f2d8bb.js"
   ]
 }
