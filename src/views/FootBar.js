@@ -100,12 +100,15 @@ const RootBox = styled(Box)((props) => `
       margin: 0 10px;
       transition: all 0.5s;
       ${[props.theme.breakpoints.down('sm')]}{
-        width: 60%;
+        width: 50%;
         margin: 0 10px;
       }
         .MuiCardMedia-root{
           width: 100%;
           height: 120px;
+          ${props.theme.breakpoints.down('sm')}{
+            height: 100px;
+          }
         }
         .MuiCardContent-root{
           padding: 5px 0;
@@ -127,6 +130,11 @@ const RootBox = styled(Box)((props) => `
               display: -webkit-box;
               -webkit-line-clamp: 2;
               -webkit-box-orient: vertical;
+              ${props.theme.breakpoints.down('sm')}{
+                display: block;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+              }
             }
             .MuiBox-root{
               display: flex;

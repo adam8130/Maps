@@ -43,7 +43,7 @@ const Map = memo(() => {
     path: 'M 20.5 6 c -2.61 0.7 -5.67 1 -8.5 1 s -5.89 -0.3 -8.5 -1 L 3 8 c 1.86 0.5 4 0.83 6 1 v 13 h 2 v -6 h 2 v 6 h 2 V 9 c 2 -0.17 4.14 -0.5 6 -1 l -0.5 -2 Z M 12 6 c 1.1 0 2 -0.9 2 -2 s -0.9 -2 -2 -2 s -2 0.9 -2 2 s 0.9 2 2 2 Z',
     fillOpacity: 1,
     // strokeColor: color,
-    fillColor: color==='dark'? '#81d4fa' : 'orange',
+    fillColor: color, 
     scale: 1.3,
   }),[])
   
@@ -51,7 +51,7 @@ const Map = memo(() => {
     path: 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z',
     fillOpacity: 1,
     // strokeColor: color,
-    fillColor: color==='dark'? 'orange' : '#ef5350',
+    fillColor: color,
     scale: 1.3,
   }),[])
 
@@ -85,33 +85,20 @@ const Map = memo(() => {
 
       <Marker  // user position 
         position={center} 
-        icon={mode==='dark'? userIcon('dark') : userIcon('light')}
+        icon={mode==='dark'? userIcon('#81d4fa') : userIcon('orange')}
       />
-      
-      <Stack diretcion='column' className='MuiStack-root'>  {/* ui buttons */}
-        {nearlist?.length > 0 &&  // searched list
-        <Fab onClick={()=>dispatch(setFootbar(!footbar))}>
-          <List/>
-        </Fab>
-        }
-        <Fab onClick={()=>map.setZoom(map.getZoom()+1)}>
-          <Add/>
-        </Fab>
-        <Fab onClick={()=>map.setZoom(map.getZoom()-1)}>
-          <Remove/>
-        </Fab>
-        <Fab className='fab-nav' onClick={()=>{map.panTo(center); map.setZoom(15)}}>
-          <Navigation />
-        </Fab>
-      </Stack>
 
       {!isClear &&
       <>
         {mapType().map((item, i) =>  // list from api
         <Marker 
           key={i}
-          icon={ mode==='dark'? markerIcon('dark') : markerIcon('light') }
-          animation={selected===i && window.google.maps.Animation.DROP}
+          icon={ 
+            mode==='dark'? 
+            (selected===i ? markerIcon('blue') : markerIcon('orange')) : 
+            (selected===i ? markerIcon('orange') : markerIcon('#ef5350')) 
+          }
+          animation={ selected===i && window.google.maps.Animation.DROP }
           position={{
             lat: item.geometry.location.lat(),
             lng: item.geometry.location.lng(),
@@ -145,6 +132,24 @@ const Map = memo(() => {
         {myItem && (<MarkInfo/>)}  {/* item user created */}
       </>
       }
+
+      <Stack diretcion='column' className='MuiStack-root'>  {/* ui buttons */}
+        {nearlist?.length > 0 &&  // searched list
+        <Fab onClick={()=>dispatch(setFootbar(!footbar))}>
+          <List/>
+        </Fab>
+        }
+        <Fab onClick={()=>map.setZoom(map.getZoom()+1)}>
+          <Add/>
+        </Fab>
+        <Fab onClick={()=>map.setZoom(map.getZoom()-1)}>
+          <Remove/>
+        </Fab>
+        <Fab className='fab-nav' onClick={()=>{map.panTo(center); map.setZoom(15)}}>
+          <Navigation />
+        </Fab>
+      </Stack>
+
     </GoogleMap>
     </RootBox> 
   )

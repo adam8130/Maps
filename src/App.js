@@ -16,7 +16,6 @@ import { actions } from './store/Reducer'
 
 
 const { setIsMobile } = actions
-
 const libraries = ['places']
 
 const App = memo(() => {

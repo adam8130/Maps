@@ -118,7 +118,7 @@ const RootBox = styled(Box)(({ theme}) => `
   z-index: 1100;
   ${[theme.breakpoints.down('sm')]}{
     width: 90%;
-    height: 90%;
+    height: 70vh;
     bottom: 0;
     left: 5%;
     right: 5%;
@@ -128,12 +128,19 @@ const RootBox = styled(Box)(({ theme}) => `
       img{
         border-radius: 8px;
         height: 33vh;
+        ${[theme.breakpoints.down('sm')]}{
+          height: 25vh;
+        }
       }
     }
     .MuiCard-root{
       height: 60%;
       border-radius: 8px;
       background: ${theme.palette.background.third};
+      ${[theme.breakpoints.down('sm')]}{
+        height: 50%;
+        overflow: scroll;
+      }
     }
 `)
 const FlexBox = styled(Box)`

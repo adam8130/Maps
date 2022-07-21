@@ -178,7 +178,7 @@ const MenuBox = styled(Box)(({ theme }) => `
     width: 90%;
     padding: 0;
     border-radius: 10px;
-    margin-top: 80px;
+    top: 10%;
   }
 `)
 const PopupBox = styled(Box)(({ theme }) => `
@@ -194,11 +194,11 @@ const PopupBox = styled(Box)(({ theme }) => `
   border-radius: 10px;
   left: 0;
   right: 0;
-  margin-top: 55px;
+  top: 7%;
   ${[theme.breakpoints.down('md')]}{
     padding: 10px 0 5px 0;
     width: 90%;
-    margin-top: 135px;
+    top: 18%;
     border-radius: 5px;
   }
     .MuiButton-root{
