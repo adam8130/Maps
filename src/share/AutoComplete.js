@@ -1,59 +1,95 @@
-import React from "react"
+import React, { useRef, useState, memo, useCallback } from "react"
 import { useSelector, useDispatch } from 'react-redux'
-import usePlacesAutocomplete, { getGeocode, getLatLng } from 'use-places-autocomplete'
-import { Autocomplete, InputBase, Box, styled } from '@mui/material'
-import Search from '@mui/icons-material/Search'
+import { styled, Box, Input, Autocomplete } from '@mui/material'
+import { Search } from '@mui/icons-material'
 import { actions } from "../store/Reducer"
 
 
+const { setNearlist } = actions
 
-const { setSearchDot } = actions
+const AutoComplete = memo(() => {
 
-const AutoComplete = () => {
+  console.log('auto')
+  const dispatch = useDispatch()
+  const { bounds, map } = useSelector( ({Global}) => Global )
+  const [data, setData] = useState([])
+  const input = useRef(null)
+  const markers = useRef([])
 
-    const { bounds, map } = useSelector( ({Global}) => Global )
-    const dispatch = useDispatch()
 
-    const { value, suggestions: { data }, setValue} = usePlacesAutocomplete({
-        requestOptions: {
-          bounds: bounds
-        }
-    })
-    console.log(data)
+  const getOptionLabel = (e) => (
+    (e.terms && e.terms[0].value) || input.current.value
+  )
 
-    const getOptionLabel = (option) => (
-      typeof option === 'string' ? option : option.description
-    )
-    const renderInput = (params) => {
-      const {InputLabelProps,InputProps,...rest} = params
-      return (
-        <InputBase {...params.InputProps} {...rest}/>
-      )
+  const renderInput = ({ InputLabelProps, InputProps, ...rest }) => (
+    <Input inputRef={input} disableUnderline {...InputProps} {...rest}/>
+  )
+
+  const getPrediction = useCallback((val) => {
+    if (!val) {
+      setData([])
+      dispatch(setNearlist([]))
+      return
+    } 
+    let sessionToken = new window.google.maps.places.AutocompleteSessionToken()
+    const service = new window.google.maps.places.AutocompleteService()
+    const options = {
+      input: val,
+      bounds: bounds,
+      sessionToken
     }
-    const onChange = async (_, val) => {
-      if(val){
-        const results = await getGeocode({ address: val.description })
-        const {lat, lng} = getLatLng(results[0])
-        map.panTo({lat:lat, lng:lng})
-        dispatch(setSearchDot({lat:lat, lng:lng}))
+    const callback = (predictions) => predictions && setData(predictions)
+    service.getQueryPredictions(options, callback)
+  },[dispatch, bounds])
+  
+  const getTextSearch = (_, val) => {
+    markers.current.forEach((marker, i) => marker.setMap(null))
+    if (val) {
+      markers.current = []
+      const request = { 
+        query: val.description || input.current.value, 
+        openNow: false
       }
+      const service = new window.google.maps.places.PlacesService(map)
+      service.textSearch(request, callback)
     }
+  }
+  
+  const callback = results => {
+    const viewport = new window.google.maps.LatLngBounds()
+    console.log(viewport)
+    results?.forEach( place => {
+      if (place.geometry.viewport) {
+        viewport.union(place.geometry.viewport)
+      } else {
+        viewport.extend(place.geometry.location)
+      }
+    })
+    results.forEach(item => {
+      item.opening_hours = null
+      delete item.permanently_closed
+    })
+    let filteredResults = results.filter(item => item.photos)
+    map.fitBounds(viewport)
+    dispatch(setNearlist(filteredResults))
+  }
 
-    return (
-        <SearchBox>
-            <Search/>
-            <Autocomplete
-              options={data}
-              inputValue={value}
-              onChange={onChange}
-              onInputChange={(_,val)=>setValue(val)}
-              getOptionLabel={getOptionLabel}
-              renderInput={renderInput}
-              freeSolo
-            />
-        </SearchBox>
-    )
-}
+
+  return (
+    <SearchBox>
+        <Search/>
+        <Autocomplete
+          options={data}
+          onChange={getTextSearch}
+          onInputChange={(_,val)=>getPrediction(val)}
+          getOptionLabel={getOptionLabel}
+          renderInput={renderInput}
+          onKeyDown={(e)=> e.key==='Enter' && getTextSearch(null,input.current.value)}
+          freeSolo
+        />
+    </SearchBox>
+  )
+})
 
 export default AutoComplete
 
@@ -76,9 +112,9 @@ const SearchBox = styled(Box)(({ theme }) => ({
   },
   '.MuiInputBase-root':{
     color: 'inherit',
-    paddingLeft: '40px',
+    padding: '0 0 0 40px',
     'input':{
-        height: '24px',
+      height: '24px',
     }
   },
   '>.MuiSvgIcon-root':{

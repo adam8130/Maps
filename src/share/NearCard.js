@@ -1,121 +1,139 @@
-import React, { memo } from 'react'
-import { Card, CardActionArea, CardContent, CardMedia, Chip, styled, Typography,
-  Box, Rating } from '@mui/material'
+import React, { memo, useEffect, useState } from 'react'
+import { Card, CardContent, Chip, styled, Typography, Box, Rating } from '@mui/material'
 import { DirectionsCar, LocationOn, Phone, Star, Close } from '@mui/icons-material'
-import { connect } from 'react-redux'
+import Slider from 'react-slick'
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import { useSelector, useDispatch } from 'react-redux'
+import { actions } from '../store/Reducer'
 
-
-
-const mapState = ({Global, MapList}) => ({
-  detail: Global.detail,
-  myItem: MapList.myItem
-})
-const mapDispatch = {
-  setDetail: val => ({type: 'setDetail', payload: val})
-}
+const { setOpenDetail } = actions
 
 const NearCard = memo((state) => {
   
   // console.log('NearCardStart');
-  const { detail, setDetail } = state
-  
+  const { openDetail } = useSelector(({ MapList }) => MapList)
+  const { map } = useSelector(({ Global }) => Global)
+  const dispatch = useDispatch()
+  const [detail, setDetail] = useState(null)
+
+  useEffect(()=>{
+    const service = new window.google.maps.places.PlacesService(map)
+    const request = {
+      placeId: openDetail.place_id,
+      fields: ['name', 'rating', 'formatted_phone_number', 'geometry',
+      'photos', 'formatted_address', 'website']
+    }
+    service.getDetails(request, (res) => setDetail(res))
+  },[openDetail, map])
+
+  const settings = {
+    autoplay: true,
+    autoplaySpeed: 3000,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1
+  }
+
+  console.log(detail)
+
   return (
-    <StyledCard elevation={6}>
-      <CardActionArea>
-        <CardMedia image={detail.photo.images.large.url}/>
-        <CardContent >
-          <Typography variant='h5'>{detail.name}</Typography>
+    <>
+    {detail &&
+    <RootBox>
+      <Slider {...settings} className='slick-root'>
+        {detail.photos?.map( (item, i) =>
+          <img className='slick-img' key={i} src={item.getUrl()} alt={item.name}/>
+        )}
+      </Slider>
+      <Card elevation={6}>
+          <CardContent >
+            <Typography variant='h5'>{detail.name}</Typography>
 
-          <FlexBox>  {/* rating */}
-            <Rating 
-              readOnly size='small' precision={0.1} sx={{ml:'-3px'}}
-              value={Number(parseFloat(detail.raw_ranking).toFixed(1))} 
-              emptyIcon={<Star style={{ opacity: 0.55 }} fontSize="inherit"/>}
-            />
-            <Typography variant='subtitle1'>
-              {Number(parseFloat(detail.raw_ranking).toFixed(1))}
-            </Typography>
-          </FlexBox>
+            <FlexBox>  {/* rating */}
+              <Rating 
+                readOnly size='small' precision={0.1} sx={{ml:'-3px'}}
+                value={Number(detail.rating)} 
+                emptyIcon={<Star style={{ opacity: 0.55 }} fontSize="inherit"/>}
+              />
+              <Typography variant='subtitle1'>
+                {Number(detail.rating)}
+              </Typography>
+            </FlexBox>
 
-          <FlexBox>  {/* price */}
-            <Typography variant='subtitle1'>Price</Typography>
-            <Typography gutterBottom variant='subtitle1'>
-              {detail.price? detail.price.split('-')[0]+ 'Up': detail.price_level}
-            </Typography>
-          </FlexBox>
+            <FlexBox mt={1}>  {/* address */}
+              <LocationOn sx={{ml:'-3px'}}/>
+              <Typography variant='subtitle' sx={{width:'50%', textAlign: 'right'}}>
+                {detail.formatted_address}
+              </Typography>
+            </FlexBox>
           
-          <FlexBox>  {/* rank */}
-            <Typography variant='subtitle1'>Rank</Typography>
-            <Typography variant='p'>
-              {detail.ranking}
-            </Typography>
-          </FlexBox>
+            <FlexBox mt={1}>  {/* distance */}
+              <DirectionsCar sx={{ml:'-3px'}}/>
+              <Typography variant='subtitle'>
+                from you
+              </Typography>
+            </FlexBox>
 
-          {detail.cuisine?.map(detail=>  // chip
-            <Chip key={detail.key} label={detail.name} sx={{m:'5px 5px 5px 0'}}/>
-          )}
-          
-          <FlexBox mt={1}>  {/* address */}
-            <LocationOn sx={{ml:'-3px'}}/>
-            <Typography variant='subtitle' sx={{width:'50%', textAlign: 'right'}}>
-              {detail.address}
-            </Typography>
-          </FlexBox>
-        
-          <FlexBox mt={1}>  {/* distance */}
-            <DirectionsCar sx={{ml:'-3px'}}/>
-            <Typography variant='subtitle'>
-              {detail.distance_string.replace(/k/,'K')} from you
-            </Typography>
-          </FlexBox>
-            
-          <FlexBox mt={1}>  {/* phone */}
-            <Phone sx={{ml:'-3px'}}/>
-            <Typography variant='subtitle'>
-              {detail.phone}
-            </Typography>
-          </FlexBox>
-          
-          <FlexBox sx={{justifyContent:'flex-end',mt:2}}>  {/* website */}
-            <Chip label='WebSite' clickable sx={{px:1}} color='primary'
-              onClick={()=>window.open(detail.website,'_blank')}
-            />
-          </FlexBox>
-          
-          <CloseBox onClick={()=>setDetail(null)}>
-            <Close/>
-          </CloseBox>
-          
-        </CardContent>
-      </CardActionArea>
-    </StyledCard>
+            <FlexBox mt={1}>  {/* phone */}
+              <Phone sx={{ml:'-3px'}}/>
+              <Typography variant='subtitle'>
+                {detail.formatted_phone_number}
+              </Typography>
+            </FlexBox>
+
+            <FlexBox sx={{justifyContent:'flex-end',mt:2}}>  {/* website */}
+              <Chip label='WebSite' clickable sx={{px:1}} color='primary'
+                onClick={()=>window.open(detail.website,'_blank')}
+              />
+            </FlexBox>
+
+            <FlexBox sx={{justifyContent:'center',mt:2}}>  {/* website */}
+              <Chip label='Reviews' clickable sx={{px:1}} color='primary'
+                onClick={()=>window.open(detail.website,'_blank')}
+              />
+            </FlexBox>
+
+            <CloseBox onClick={()=>dispatch(setOpenDetail(null))}>
+              <Close/>
+            </CloseBox>
+
+          </CardContent>
+      </Card>
+    </RootBox>
+    }
+    </>
   )
 })
 
-export default connect(mapState, mapDispatch)(NearCard)
+export default NearCard
 
-const StyledCard = styled(Card)(({theme})=>`
+const RootBox = styled(Box)(({ theme}) => `
   width: 25%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
+  height: 85vh;
   position: absolute;
-  top: 8vh;
-  z-index: 3;
-  background: ${theme.palette.background.default};
-    .MuiCardMedia-root{
-      width: 100%;
-      height: 35%;
+  bottom: 3%;
+  left: 1%;
+  z-index: 1100;
+  ${[theme.breakpoints.down('sm')]}{
+    width: 90%;
+    height: 90%;
+    bottom: 0;
+    left: 5%;
+    right: 5%;
+  }
+    .slick-root{
+      height: 40%;
+      img{
+        border-radius: 8px;
+        height: 33vh;
+      }
     }
-    .MuiCardActionArea-root{
-      position: relative;
-    }
-    .MuiCardContent-root{
-      height: 65%;
-    }
-    ${[theme.breakpoints.down('sm')]}{
-      width: 100%;
-      height: 100%;
+    .MuiCard-root{
+      height: 60%;
+      border-radius: 8px;
+      background: ${theme.palette.background.third};
     }
 `)
 const FlexBox = styled(Box)`
@@ -134,5 +152,6 @@ const CloseBox = styled(Box)(({theme})=>`
   position: absolute;
   top: 5px;
   right: 5px;
-  background: ${theme.palette.background.default};
+  background: rgba(255,255,255,0.2);
+  color: ${theme.palette.text.button};
 `)

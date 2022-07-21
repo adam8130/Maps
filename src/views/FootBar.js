@@ -1,19 +1,21 @@
-import React, { useState, memo, createRef, useEffect, useCallback } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
+import React, { useState, memo, createRef, useEffect, useCallback, useRef } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { actions } from '../store/Reducer'
 import { Box, Card, CardContent, CardMedia, Rating, styled } from '@mui/material'
 import { Star } from '@mui/icons-material'
 
 
-const { setDetail } = actions
+const { setOpenDetail, setSelected } = actions
 
 const FootBar = memo(() => {
 
-  const { nearlist, selected, isClear, listType, markerlist } = useSelector(({ MapList }) => MapList)
+  const { nearlist, selected, listType, markerlist, openDetail } = useSelector(({ MapList }) => MapList)
+  const { isClear } = useSelector(({ Global })=> Global)
+  const dispatch = useDispatch()
 
-  console.log(nearlist)
   const [refArr, setRefArr] = useState([])
-  const [prevSpot, setPrevSpot] = useState(null)
+  const rootBox = useRef(false)
+  const prevSpot = useRef(null)
 
   useEffect(() => {
     const refs = Array(nearlist.length).fill().map((_, i) => createRef())
@@ -21,36 +23,48 @@ const FootBar = memo(() => {
   }, [nearlist])
 
   useEffect(() => {
-    console.log(selected);
-    if(selected){
-      refArr[selected].current.scrollIntoView({ behavior: 'smooth', inline: 'start' })
-      refArr[selected].current.style.transform = 'translateY(-20px) scale(1.1)'
-      setPrevSpot(selected)
-      if(prevSpot)
-      refArr[prevSpot].current.style.transform = 'translateY(0) scale(1.0)'
+    console.log(selected)
+    if (prevSpot.current !== null) {
+      refArr[prevSpot.current].current.style.transform = 'translateY(0) scale(1.0)'
     }
+    if (selected !== null && refArr.length > 0) {
+      refArr[selected].current.scrollIntoView({ behavior: 'smooth', inline: 'center' })
+      refArr[selected].current.style.transform = 'translateY(-30px) scale(1.1)'
+    }
+    prevSpot.current = selected
   }, [selected, refArr])
-  
+
+
   const mapType = useCallback(() => (
     listType === 'Near' ? nearlist : markerlist
   ), [listType, markerlist, nearlist])
 
+  const onCardClick = (item, i) => {
+    console.log(item)
+    dispatch(setOpenDetail(item))
+    dispatch(setSelected(i))
+  }
+
   return (
-    <RootBox>
+    <RootBox ref={rootBox} isOpen={openDetail}>
       {!isClear && mapType().map( (item, i) =>
-        <Card elevation={6} key={i} ref={refArr[i]} onClick={() => setDetail(item)}>
+        <Card 
+          elevation={10}
+          key={i}
+          ref={refArr[i]}
+          onClick={() => onCardClick(item, i)}
+        >
           <CardMedia image={(item.photos && item.photos[0].getUrl()) || ''}/>
           <CardContent>
-          <h4 className='name'>{item.name}</h4>
+            <h4 className='name'>{item.name}</h4>
             <Box>
-              <Rating   
+              <Rating
                 readOnly size='small' precision={0.1}
                 value={parseFloat(Number(item.rating).toFixed(1))} 
                 emptyIcon={<Star style={{ opacity: 0.55 }} fontSize="inherit"/>}
               />
-              <p className='distance'>{Number(item.distance).toFixed(1)} 公里</p>
+              <p className='distance'>{Number(item.distance).toFixed(1)}</p>
             </Box>
-            
             <p className='address'>{item.formatted_address}</p>
           </CardContent>
         </Card>
@@ -63,19 +77,20 @@ const FootBar = memo(() => {
 export default FootBar
 
 
-const RootBox = styled(Box)(({ theme }) => `
-  width: 90%;
-  padding: 10px;
+const RootBox = styled(Box)((props) => `
+  width: ${props.isOpen? '65%' : '85%'};
+  padding: 30px 10px 10px 10px;
   margin: auto;
   display: -webkit-box;
   overflow-x: scroll;
   position: absolute;
   bottom: 0;
-  left: 2%;
+  left: ${props.isOpen? '28%' : '5%'};
   z-index: 2;
   transition: all 0.5s;
-  ${theme.breakpoints.down('md')}{
+  ${props.theme.breakpoints.down('md')}{
     width: 100%;
+    left: 0;
     &::-webkit-scrollbar{
       display: none;
     }
@@ -83,13 +98,14 @@ const RootBox = styled(Box)(({ theme }) => `
     .MuiCard-root{
       width: 15%;
       margin: 0 10px;
-      ${[theme.breakpoints.down('sm')]}{
-        width: 70%;
-        margin: 0 5px;
+      transition: all 0.5s;
+      ${[props.theme.breakpoints.down('sm')]}{
+        width: 60%;
+        margin: 0 10px;
       }
         .MuiCardMedia-root{
           width: 100%;
-          height: 100px;
+          height: 120px;
         }
         .MuiCardContent-root{
           padding: 5px 0;

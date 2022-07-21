@@ -13,6 +13,7 @@ export const darkTheme = {
         primary: 'rgb(220,220,220)',
         secondary: 'rgb(220,220,220)',
         third: 'rgb(70,70,70)',
+        button: 'rgba(70,70,70,0.9)'
       },
       
     }
@@ -32,6 +33,7 @@ export const lightTheme = {
         primary: 'rgb(40,40,40)',
         secondary: 'rgb(70,90,100)',
         third: 'rgb(224,176,0)',
+        button: 'rgba(240,240,240,0.9)'
       }
     }
 }

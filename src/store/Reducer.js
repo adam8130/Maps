@@ -18,33 +18,29 @@ const Global = createSlice({
         setIsMobile: (state, act) => { state.isMobile = act.payload },
         setIsClear: (state, act) => { state.isClear = act.payload },
         setFootbar: (state, act) => { state.footbar = act.payload },
-        setDetail: (state, act) => { state.detail = act.payload },
     }
 })
 
 const MapList = createSlice({
     name: 'Maplist',
     initialState: {
-        
         nearlist: [],
         markerlist: [],
         listType: 'Near',
         myItem: null,
-        searchDot: null,
-        searchList: null,
         selected: null,
-        
+        openDetail: false,
     },
     reducers: {
-        
-        setNearlist: (state, act) => { state.nearlist = act.payload },
+        setNearlist: (state, act) => { 
+            state.nearlist = act.payload
+            state.openDetail = false 
+        },
         setMarkerlist: (state, act) => { state.markerlist = act.payload },
         setListType: (state, act) => { state.listType = act.payload },
         setMyItem: (state, act) => { state.myItem = act.payload },
-        setSearchDot: (state, act) => { state.searchDot = act.payload },
-        setSearchList: (state, act) => { state.searchList = act.payload },
         setSelected: (state, act) => { state.selected = act.payload },
-        
+        setOpenDetail: (state, act) => { state.openDetail = act.payload },
     }
 })
 

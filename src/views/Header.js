@@ -1,7 +1,7 @@
 import React, { useState, memo, useMemo, useCallback, } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { actions } from '../store/Reducer'
-import AutoComplete from '../share/Auto2'
+import AutoComplete from '../share/AutoComplete'
 import {
   AppBar, IconButton, Box, styled, Button,
   Switch, Stack, FormControl, Select, MenuItem, InputLabel 
@@ -21,7 +21,7 @@ const Header = memo(() => {
   const { mode, isMobile, isClear } = useSelector( ({Global}) => Global )
   const { listType } = useSelector( ({MapList}) => MapList )
 
-  const [isMenuBox, setIsMenuBox] = useState(false)
+  const [isMenuBox, setIsMenuBox] = useState(true)
   const [isPopupBox, setIsPopupBox] = useState(false)
   const [rating, setRating] = useState('3.5 Up')
   const [distance, setDistance] = useState('2Km Less')
@@ -147,7 +147,8 @@ const AppBox = styled(AppBar)(({ theme }) => ({
   background: [theme.palette.background.main],
   [theme.breakpoints.down('sm')]: {
     width: '90%',
-    margin: '10px auto 0 auto',
+    left: '5%',
+    right: '5%',
   },
   '.MuiIconButton-root': {
     padding: 0,
@@ -177,7 +178,7 @@ const MenuBox = styled(Box)(({ theme }) => `
     width: 90%;
     padding: 0;
     border-radius: 10px;
-    margin-top: 70px;
+    margin-top: 80px;
   }
 `)
 const PopupBox = styled(Box)(({ theme }) => `
@@ -197,7 +198,7 @@ const PopupBox = styled(Box)(({ theme }) => `
   ${[theme.breakpoints.down('md')]}{
     padding: 10px 0 5px 0;
     width: 90%;
-    margin-top: 125px;
+    margin-top: 135px;
     border-radius: 5px;
   }
     .MuiButton-root{

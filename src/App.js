@@ -19,10 +19,11 @@ const { setIsMobile } = actions
 
 const libraries = ['places']
 
-const App = memo((state) => {
+const App = memo(() => {
   
   console.log('appStart');
   const { mode, footbar } = useSelector(({ Global }) => Global)
+  const { listType, openDetail, nearlist } = useSelector(({ MapList }) => MapList)
   const dispatch = useDispatch()
 
   const theme = useTheme()
@@ -59,9 +60,9 @@ const App = memo((state) => {
       {isLoaded && <Header/>}
       <Grid sx={{position:'relative'}}>
         {isLoaded && <Map/>}
-        {footbar && <FootBar/>}
-        {/* {(listType === 'Near' && detail) && <NearCard/>}
-        {(listType === 'MyMap' && detail) && <MyItemCard/>} */}
+        {(footbar && nearlist?.length > 0) && <FootBar/>}
+        {(listType === 'Near' && openDetail) && <NearCard/>}
+        {/* {(listType === 'MyMap' && detail) && <MyItemCard/>} */}
       </Grid>
     </ThemeProvider>
   )
