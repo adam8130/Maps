@@ -6,7 +6,7 @@ import Header from './views/Header'
 import FootBar from './views/FootBar'
 import Map from './views/Map'
 import NearCard from './share/NearCard'
-import MyItemCard from './share/MyItemCard'
+// import MyItemCard from './share/MyItemCard'
 import { darkTheme, lightTheme } from './theme/Theme'
 // import TPC from './fetch/Taipei_tw.json'  // use for design layout before deploy
 // import NTPC from './fetch/Banqiao_tw.json'  // use for design layout before deploy
@@ -21,7 +21,7 @@ const libraries = ['places']
 const App = memo(() => {
   
   console.log('appStart');
-  const { mode, footbar } = useSelector(({ Global }) => Global)
+  const { mode } = useSelector(({ Global }) => Global)
   const { listType, openDetail, nearlist } = useSelector(({ MapList }) => MapList)
   const dispatch = useDispatch()
 

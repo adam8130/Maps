@@ -31,6 +31,7 @@ const MapList = createSlice({
         selected: null,
         openDetail: false,
         infowindow: null,
+        detailCond: false,
     },
     reducers: {
         setNearlist: (state, act) => { 
@@ -42,7 +43,8 @@ const MapList = createSlice({
         setMyItem: (state, act) => { state.myItem = act.payload },
         setSelected: (state, act) => { state.selected = act.payload },
         setOpenDetail: (state, act) => { state.openDetail = act.payload },
-        setInfowindow: (state, act) => { state.infowindow = act.payload}
+        setInfowindow: (state, act) => { state.infowindow = act.payload},
+        setDetailCond: (state, act) => { state.detailCond = act.payload}
     }
 })
 

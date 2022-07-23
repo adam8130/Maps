@@ -76,7 +76,7 @@ const AutoComplete = memo(() => {
 
 
   return (
-    <SearchBox>
+    <RootBox>
         <Search/>
         <Autocomplete
           options={data}
@@ -87,13 +87,13 @@ const AutoComplete = memo(() => {
           onKeyDown={(e)=> e.key==='Enter' && getTextSearch(null,input.current.value)}
           freeSolo
         />
-    </SearchBox>
+    </RootBox>
   )
 })
 
 export default AutoComplete
 
-const SearchBox = styled(Box)(({ theme }) => ({
+const RootBox = styled(Box)(({ theme }) => ({
   width: '100%',
   marginLeft: 0,
   position: 'relative',
@@ -110,12 +110,9 @@ const SearchBox = styled(Box)(({ theme }) => ({
   '&:hover': {
     backgroundColor: 'rgba(255,255,255,0.25)',
   },
-  '.MuiInputBase-root':{
+  '.MuiInput-root':{
     color: 'inherit',
     padding: '0 0 0 40px',
-    'input':{
-      height: '24px',
-    }
   },
   '>.MuiSvgIcon-root':{
     marginLeft: '10px',

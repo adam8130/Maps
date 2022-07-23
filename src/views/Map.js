@@ -9,14 +9,17 @@ import { actions } from '../store/Reducer'
 
 
 const { 
-  setMap, setBounds, setMarkerlist, setMyItem, setSelected, setFootbar, setInfowindow 
+  setMap, setBounds, setMarkerlist, setMyItem, setSelected, setFootbar, 
+  setInfowindow, setDetailCond 
 } = actions
 
 const Map = memo(() => {
 
   console.log('mapStart');
-  const { mode, map, isClear, footbar } = useSelector(({Global}) => Global)
-  const { nearlist, markerlist, listType, myItem, selected, infowindow } = useSelector(({MapList})=> MapList)
+  const { mode, map, isClear, footbar, isMobile } = useSelector(({Global}) => Global)
+  const { 
+    nearlist, markerlist, listType, myItem, selected, infowindow, detailCond
+  } = useSelector(({MapList})=> MapList)
   const [center, setCenter] = useState(null)
   const dispatch = useDispatch()
 
@@ -135,8 +138,12 @@ const Map = memo(() => {
       }
 
       <Stack diretcion='column' className='MuiStack-root'>  {/* ui buttons */}
-        {nearlist?.length > 0 &&  // searched list
-        <Fab onClick={()=>dispatch(setFootbar(!footbar))}>
+        {nearlist?.length > 0 && 
+        <Fab 
+          onClick={()=>{ isMobile? 
+            dispatch(setDetailCond(!detailCond)) : dispatch(setFootbar(!footbar))
+          }}
+        >
           <List/>
         </Fab>
         }

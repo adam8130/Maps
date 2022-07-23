@@ -39,14 +39,12 @@ const FootBar = memo(() => {
   ), [listType, markerlist, nearlist])
 
   const onCardClick = useCallback((item, i) => {
-    console.log(item)
     dispatch(setOpenDetail(item))
     dispatch(setSelected(i))
-    console.log(item)
     dispatch(setInfowindow(item))
     map.fitBounds(item.geometry.viewport)
     map.setZoom(15)
-  },[dispatch])
+  },[dispatch, map])
 
   rootBox && window.addEventListener('wheel', (event) => {
     let area = rootBox.current.getBoundingClientRect().y

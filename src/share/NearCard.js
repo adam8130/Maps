@@ -7,13 +7,13 @@ import "slick-carousel/slick/slick-theme.css";
 import { useSelector, useDispatch } from 'react-redux'
 import { actions } from '../store/Reducer'
 
-const { setOpenDetail } = actions
+const { setOpenDetail, setDetailCond } = actions
 
 const NearCard = memo(() => {
   
   // console.log('NearCardStart');
-  const { openDetail } = useSelector(({ MapList }) => MapList)
-  const { map, isClear } = useSelector(({ Global }) => Global)
+  const { openDetail, detailCond } = useSelector(({ MapList }) => MapList)
+  const { map, isClear, isMobile } = useSelector(({ Global }) => Global)
   const dispatch = useDispatch()
   const [detail, setDetail] = useState(null)
 
@@ -22,7 +22,7 @@ const NearCard = memo(() => {
     const request = {
       placeId: openDetail.place_id,
       fields: ['name', 'rating', 'formatted_phone_number', 'geometry',
-      'photos', 'formatted_address', 'website']
+      'photos', 'formatted_address', 'website', 'reviews']
     }
     service.getDetails(request, (res) => setDetail(res))
   },[openDetail, map])
@@ -38,9 +38,18 @@ const NearCard = memo(() => {
 
   console.log(detail)
 
+  const render = () => {
+    if (isMobile) {
+      console.log(detailCond)
+      return detailCond? true : false
+    } else {
+      return true
+    }
+  }
+
   return (
     <>
-    {detail &&
+    {(render() && detail) &&
     <RootBox isClear={isClear}>
       <Slider {...settings} className='slick-root'>
         {detail.photos?.map( (item, i) =>
@@ -97,7 +106,10 @@ const NearCard = memo(() => {
             </Button>
           </FlexBox>
 
-          <CloseBox onClick={()=>dispatch(setOpenDetail(null))}>
+          <CloseBox onClick={()=>{
+            dispatch(setOpenDetail(null))
+            dispatch(setDetailCond(false))
+          }}>
             <Close/>
           </CloseBox>
         </CardContent>
@@ -121,20 +133,20 @@ const RootBox = styled(Box)((props) => `
   ${props.theme.breakpoints.down('sm')}{
     width: 90%;
     height: 70vh;
-    bottom: 0;
+    bottom: 1%;
     left: 5%;
     right: 5%;
   }
     .slick-root{
       height: 40%;
       ${props.theme.breakpoints.down('sm')}{
-        height: 30vh;
+        height: 35vh;
       }
       img{
         border-radius: 10px;
         height: 33vh;
         ${props.theme.breakpoints.down('sm')}{
-          height: 30vh;
+          height: 35vh;
         }
       }
     }
