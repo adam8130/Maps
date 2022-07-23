@@ -27,13 +27,11 @@ export const lightTheme = {
       background: {
         main: 'rgb(70,90,100)',
         secondary: 'rgb(220,220,220)',
-        third: 'rgb(240,240,240)',
       },
       text: {
         primary: 'rgb(40,40,40)',
         secondary: 'rgb(70,90,100)',
         third: 'rgb(224,176,0)',
-        button: 'rgba(240,240,240,0.9)'
       }
     }
 }

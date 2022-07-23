@@ -36,8 +36,6 @@ const NearCard = memo(() => {
     arrows: false
   }
 
-  console.log(detail)
-
   const render = () => {
     if (isMobile) {
       console.log(detailCond)
@@ -60,6 +58,7 @@ const NearCard = memo(() => {
         <CardContent >
           <Typography variant='h5'>{detail.name}</Typography>
 
+          {detail.rating &&
           <FlexBox>  {/* rating */}
             <Rating 
               readOnly size='small' precision={0.1} sx={{ml:'-3px'}}
@@ -70,6 +69,7 @@ const NearCard = memo(() => {
               {Number(detail.rating)}
             </Typography>
           </FlexBox>
+          }
 
           <FlexBox mt={1}>  {/* address */}
             <LocationOn sx={{ml:'-3px'}}/>
@@ -99,7 +99,8 @@ const NearCard = memo(() => {
           </FlexBox>
 
           <FlexBox sx={{justifyContent:'center',mt:2}}>  {/* website */}
-            <Button color='primary'
+            <Button 
+              sx={{color: 'rgb(30,155,255)'}}  
               onClick={()=>window.open(detail.website,'_blank')}
             >
               Reviews
@@ -138,20 +139,20 @@ const RootBox = styled(Box)((props) => `
     right: 5%;
   }
     .slick-root{
-      height: 40%;
+      height: 45%;
       ${props.theme.breakpoints.down('sm')}{
         height: 35vh;
       }
       img{
         border-radius: 10px;
-        height: 33vh;
+        height: 37vh;
         ${props.theme.breakpoints.down('sm')}{
           height: 35vh;
         }
       }
     }
     .MuiCard-root{
-      height: 60%;
+      height: 55%;
       border-radius: 8px;
       background: ${props.theme.palette.background.third};
       ${props.theme.breakpoints.down('sm')}{
@@ -168,8 +169,8 @@ const FlexBox = styled(Box)`
   align-items: center;
 `
 const CloseBox = styled(Box)(({theme})=>`
-  width: 30px;
-  height: 30px;
+  width: 25px;
+  height: 25px;
   border-radius: 20px;
   display: flex;
   justify-content: center;
@@ -177,6 +178,9 @@ const CloseBox = styled(Box)(({theme})=>`
   position: absolute;
   top: 5px;
   right: 5px;
-  background: rgba(255,255,255,0.2);
-  color: ${theme.palette.text.button};
+  background: rgba(255,255,255,0.5);
+  color: rgba(50,50,50,0.6);
+  .MuiSvgIcon-root{
+    font-size: 18px;
+  }
 `)

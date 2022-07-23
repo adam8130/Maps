@@ -9,7 +9,7 @@ const { setOpenDetail, setSelected, setInfowindow } = actions
 
 const FootBar = memo(() => {
 
-  const { map, isClear, footbar } = useSelector(({ Global })=> Global)
+  const { map, isClear, footbar } = useSelector(({ Global }) => Global)
   const { nearlist, selected, listType, markerlist, openDetail } = useSelector(({ MapList }) => MapList)
   const dispatch = useDispatch()
 
@@ -20,7 +20,15 @@ const FootBar = memo(() => {
   useEffect(() => {
     const refs = Array(nearlist.length).fill().map((_, i) => createRef())
     setRefArr(refs)
-  }, [nearlist])
+    return () => {
+      prevSpot.current = null
+      rootBox.current = null
+      setRefArr(null)
+      dispatch(setSelected(null))
+      dispatch(setInfowindow(null))
+      window.onwheel = null
+    }
+  }, [nearlist, dispatch])
 
   useEffect(() => {
     if (prevSpot.current !== null) {
@@ -46,13 +54,14 @@ const FootBar = memo(() => {
     map.setZoom(15)
   },[dispatch, map])
 
-  rootBox && window.addEventListener('wheel', (event) => {
+  if(rootBox) window.onwheel = (event) => {
     let area = rootBox.current.getBoundingClientRect().y
-    if(event.y > area)rootBox.current.scrollLeft += event.deltaY 
-  })
+    if (event.y > area) rootBox.current.scrollLeft += event.deltaY 
+  }
 
   return (
     <RootBox 
+      className='123'
       ref={rootBox}
       isOpen={openDetail}
       isClear={isClear}
@@ -68,6 +77,7 @@ const FootBar = memo(() => {
           <CardMedia image={(item.photos && item.photos[0].getUrl()) || ''}/>
           <CardContent>
             <h4 className='name'>{item.name}</h4>
+            {item.rating > 0 &&
             <Box>
               <Rating
                 readOnly size='small' precision={0.1}
@@ -75,6 +85,7 @@ const FootBar = memo(() => {
                 emptyIcon={<Star style={{ opacity: 0.55 }} fontSize="inherit"/>}
               />
             </Box>
+            }
             <p className='address'>{item.formatted_address}</p>
           </CardContent>
         </Card>
