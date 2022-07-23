@@ -153,6 +153,7 @@ const AppBox = styled(AppBar)(({ theme }) => ({
   '.MuiIconButton-root': {
     padding: 0,
     '.MuiSvgIcon-root': {
+      fontSize: '30px',
       color: [theme.palette.text.primary]
     },
     '&:nth-of-type(2)':{
@@ -162,7 +163,7 @@ const AppBox = styled(AppBar)(({ theme }) => ({
 }))
 const MenuBox = styled(Box)(({ theme }) => `
   width: 40%;
-  height: 50px;
+  height: 45px;
   padding: 0 40px;
   margin: auto;
   display: flex;
@@ -178,8 +179,13 @@ const MenuBox = styled(Box)(({ theme }) => `
     width: 90%;
     padding: 0;
     border-radius: 10px;
-    top: 10%;
+    top: 11%;
   }
+    .MuiButton-root{
+      font-size: 12px;
+      -webkit-transform-origin-x: 0;
+      -webkit-transform: scale(0.95);
+    }
 `)
 const PopupBox = styled(Box)(({ theme }) => `
   width: 30%;
@@ -194,7 +200,7 @@ const PopupBox = styled(Box)(({ theme }) => `
   border-radius: 10px;
   left: 0;
   right: 0;
-  top: 7%;
+  top: 8%;
   ${[theme.breakpoints.down('md')]}{
     padding: 10px 0 5px 0;
     width: 90%;

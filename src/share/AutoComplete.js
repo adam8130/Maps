@@ -123,6 +123,11 @@ const SearchBox = styled(Box)(({ theme }) => ({
     position: 'absolute',
     pointerEvents: 'none',
   },
+  '.MuiButtonBase-root':{
+    '.MuiSvgIcon-root':{
+      fontSize: '20px',
+    }
+  },
   '.MuiAutocomplete-endAdornment':{
     right: '5px',
     top: '0',

@@ -59,7 +59,7 @@ const App = memo(() => {
       {isLoaded && <Header/>}
       <Grid sx={{position:'relative'}}>
         {isLoaded && <Map/>}
-        {(footbar && nearlist?.length > 0) && <FootBar/>}
+        {nearlist?.length > 0 && <FootBar/>}
         {(listType === 'Near' && openDetail) && <NearCard/>}
         {/* {(listType === 'MyMap' && detail) && <MyItemCard/>} */}
       </Grid>

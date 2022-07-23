@@ -8,15 +8,16 @@ import { Add, Navigation, Remove, List } from '@mui/icons-material'
 import { actions } from '../store/Reducer'
 
 
-const { setMap, setBounds, setMarkerlist, setMyItem, setSelected, setFootbar } = actions
+const { 
+  setMap, setBounds, setMarkerlist, setMyItem, setSelected, setFootbar, setInfowindow 
+} = actions
 
 const Map = memo(() => {
 
   console.log('mapStart');
   const { mode, map, isClear, footbar } = useSelector(({Global}) => Global)
-  const { nearlist, markerlist, listType, myItem, selected } = useSelector(({MapList})=> MapList)
+  const { nearlist, markerlist, listType, myItem, selected, infowindow } = useSelector(({MapList})=> MapList)
   const [center, setCenter] = useState(null)
-  const [infoWindow, setInfoWindow] = useState(null)
   const dispatch = useDispatch()
 
 
@@ -95,7 +96,7 @@ const Map = memo(() => {
           key={i}
           icon={ 
             mode==='dark'? 
-            (selected===i ? markerIcon('blue') : markerIcon('orange')) : 
+            (selected===i ? markerIcon('#ef5350') : markerIcon('orange')) : 
             (selected===i ? markerIcon('orange') : markerIcon('#ef5350')) 
           }
           animation={ selected===i && window.google.maps.Animation.DROP }
@@ -104,21 +105,21 @@ const Map = memo(() => {
             lng: item.geometry.location.lng(),
           }}
           onClick={()=>{
-            setInfoWindow(item)
+            dispatch(setInfowindow(item))
             dispatch(setSelected(i))
           }}
         />
         )}
 
-        {infoWindow &&
+        {infowindow &&
         <InfoWindow 
           position={{
-            lat: infoWindow.geometry.location.lat(),
-            lng: infoWindow.geometry.location.lng()
+            lat: infowindow.geometry.location.lat(),
+            lng: infowindow.geometry.location.lng()
           }}
-          onCloseClick={()=>setInfoWindow(null)}
+          onCloseClick={()=>dispatch(setInfowindow(null))}
         >
-          <div>{infoWindow.name}</div>
+          <div>{infowindow.name}</div>
         </InfoWindow>
         }
 
@@ -171,13 +172,16 @@ const RootBox = styled(Box)(({theme})=>`
       gap: 20px;
     }
     .MuiFab-root{
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
       background: ${theme.palette.background.third};
       color: ${theme.palette.text.secondary};
     }
     .fab-nav{
       color: rgb(30,155,255);
       transform: rotate(40deg);
+    }
+    .MuiSvgIcon-root{
+      font-size: 20px;
     }
 `)

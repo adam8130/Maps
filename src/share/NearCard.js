@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from 'react'
-import { Card, CardContent, Chip, styled, Typography, Box, Rating } from '@mui/material'
+import { Card, CardContent, Chip, styled, Typography, Box, Rating, Button } from '@mui/material'
 import { DirectionsCar, LocationOn, Phone, Star, Close } from '@mui/icons-material'
 import Slider from 'react-slick'
 import "slick-carousel/slick/slick.css";
@@ -9,11 +9,11 @@ import { actions } from '../store/Reducer'
 
 const { setOpenDetail } = actions
 
-const NearCard = memo((state) => {
+const NearCard = memo(() => {
   
   // console.log('NearCardStart');
   const { openDetail } = useSelector(({ MapList }) => MapList)
-  const { map } = useSelector(({ Global }) => Global)
+  const { map, isClear } = useSelector(({ Global }) => Global)
   const dispatch = useDispatch()
   const [detail, setDetail] = useState(null)
 
@@ -33,7 +33,7 @@ const NearCard = memo((state) => {
     infinite: true,
     speed: 500,
     slidesToShow: 1,
-    slidesToScroll: 1
+    arrows: false
   }
 
   console.log(detail)
@@ -41,65 +41,66 @@ const NearCard = memo((state) => {
   return (
     <>
     {detail &&
-    <RootBox>
+    <RootBox isClear={isClear}>
       <Slider {...settings} className='slick-root'>
         {detail.photos?.map( (item, i) =>
           <img className='slick-img' key={i} src={item.getUrl()} alt={item.name}/>
         )}
       </Slider>
       <Card elevation={6}>
-          <CardContent >
-            <Typography variant='h5'>{detail.name}</Typography>
+        <CardContent >
+          <Typography variant='h5'>{detail.name}</Typography>
 
-            <FlexBox>  {/* rating */}
-              <Rating 
-                readOnly size='small' precision={0.1} sx={{ml:'-3px'}}
-                value={Number(detail.rating)} 
-                emptyIcon={<Star style={{ opacity: 0.55 }} fontSize="inherit"/>}
-              />
-              <Typography variant='subtitle1'>
-                {Number(detail.rating)}
-              </Typography>
-            </FlexBox>
+          <FlexBox>  {/* rating */}
+            <Rating 
+              readOnly size='small' precision={0.1} sx={{ml:'-3px'}}
+              value={Number(detail.rating)} 
+              emptyIcon={<Star style={{ opacity: 0.55 }} fontSize="inherit"/>}
+            />
+            <Typography variant='subtitle1'>
+              {Number(detail.rating)}
+            </Typography>
+          </FlexBox>
 
-            <FlexBox mt={1}>  {/* address */}
-              <LocationOn sx={{ml:'-3px'}}/>
-              <Typography variant='subtitle' sx={{width:'50%', textAlign: 'right'}}>
-                {detail.formatted_address}
-              </Typography>
-            </FlexBox>
-          
-            <FlexBox mt={1}>  {/* distance */}
-              <DirectionsCar sx={{ml:'-3px'}}/>
-              <Typography variant='subtitle'>
-                from you
-              </Typography>
-            </FlexBox>
+          <FlexBox mt={1}>  {/* address */}
+            <LocationOn sx={{ml:'-3px'}}/>
+            <Typography sx={{width:'50%', textAlign: 'right', fontSize: '14px'}}>
+              {detail.formatted_address}
+            </Typography>
+          </FlexBox>
+        
+          <FlexBox mt={1}>  {/* distance */}
+            <DirectionsCar sx={{ml:'-3px'}}/>
+            <Typography sx={{fontSize: '14px'}}>
+              from you
+            </Typography>
+          </FlexBox>
 
-            <FlexBox mt={1}>  {/* phone */}
-              <Phone sx={{ml:'-3px'}}/>
-              <Typography variant='subtitle'>
-                {detail.formatted_phone_number}
-              </Typography>
-            </FlexBox>
+          <FlexBox mt={1}>  {/* phone */}
+            <Phone sx={{ml:'-3px'}}/>
+            <Typography sx={{fontSize: '14px'}}>
+              {detail.formatted_phone_number}
+            </Typography>
+          </FlexBox>
 
-            <FlexBox sx={{justifyContent:'flex-end',mt:2}}>  {/* website */}
-              <Chip label='WebSite' clickable sx={{px:1}} color='primary'
-                onClick={()=>window.open(detail.website,'_blank')}
-              />
-            </FlexBox>
+          <FlexBox sx={{justifyContent:'flex-end',mt:2}}>  {/* website */}
+            <Chip label='WebSite' clickable sx={{px:1}} color='primary'
+              onClick={()=>window.open(detail.website,'_blank')}
+            />
+          </FlexBox>
 
-            <FlexBox sx={{justifyContent:'center',mt:2}}>  {/* website */}
-              <Chip label='Reviews' clickable sx={{px:1}} color='primary'
-                onClick={()=>window.open(detail.website,'_blank')}
-              />
-            </FlexBox>
+          <FlexBox sx={{justifyContent:'center',mt:2}}>  {/* website */}
+            <Button color='primary'
+              onClick={()=>window.open(detail.website,'_blank')}
+            >
+              Reviews
+            </Button>
+          </FlexBox>
 
-            <CloseBox onClick={()=>dispatch(setOpenDetail(null))}>
-              <Close/>
-            </CloseBox>
-
-          </CardContent>
+          <CloseBox onClick={()=>dispatch(setOpenDetail(null))}>
+            <Close/>
+          </CloseBox>
+        </CardContent>
       </Card>
     </RootBox>
     }
@@ -109,14 +110,15 @@ const NearCard = memo((state) => {
 
 export default NearCard
 
-const RootBox = styled(Box)(({ theme}) => `
+const RootBox = styled(Box)((props) => `
   width: 25%;
   height: 85vh;
+  display: ${props.isClear? 'none' : 'block'};
   position: absolute;
   bottom: 3%;
   left: 1%;
   z-index: 1100;
-  ${[theme.breakpoints.down('sm')]}{
+  ${props.theme.breakpoints.down('sm')}{
     width: 90%;
     height: 70vh;
     bottom: 0;
@@ -125,20 +127,24 @@ const RootBox = styled(Box)(({ theme}) => `
   }
     .slick-root{
       height: 40%;
+      ${props.theme.breakpoints.down('sm')}{
+        height: 30vh;
+      }
       img{
-        border-radius: 8px;
+        border-radius: 10px;
         height: 33vh;
-        ${[theme.breakpoints.down('sm')]}{
-          height: 25vh;
+        ${props.theme.breakpoints.down('sm')}{
+          height: 30vh;
         }
       }
     }
     .MuiCard-root{
       height: 60%;
       border-radius: 8px;
-      background: ${theme.palette.background.third};
-      ${[theme.breakpoints.down('sm')]}{
+      background: ${props.theme.palette.background.third};
+      ${props.theme.breakpoints.down('sm')}{
         height: 50%;
+        border-radius: 0 0 10px 10px;
         overflow: scroll;
       }
     }
